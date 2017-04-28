@@ -29,7 +29,9 @@ def write_class_script_to_average_polarizations(location, band_name):
                    "get first\n\n"
                    
                    "set weight equal\n"
-                   "average /resample /nocheck position\n\n"
+                   "accumulate /resample /nocheck position\n"
+                   "multiply 0.5"
+                   "\n"
                    
                    "file out {0}-averaged.hifi mul /overwrite\n"
                    "write\n"
@@ -44,37 +46,53 @@ def write_class_script_to_average_polarizations(location, band_name):
     return path_to_script_with_filename
 
 destination_folder = "/Users/tsrice/Documents/Data/Herschel_Science_Archive/IRAS16293/level_2_5_all_bands/6b/level2_5/myDecon"
-horizontal_folder = os.path.join(destination_folder, "myDecon_WBS-H")
-vertical_folder = os.path.join(destination_folder, "myDecon_WBS-V")
 
 band_name = "6b"
 
-original_directory = os.getcwd()
+def average_polarizations(destination_folder, band_name, clobber=False):
 
-try: 
-    os.chdir(destination_folder)
+    original_directory = os.getcwd()
 
-    horizontal_filename = band_name+"-horizontal.hifi"
-    vertical_filename = band_name+"-vertical.hifi"
+    try: 
+        os.chdir(destination_folder)
 
-    # first let's copy the .hifi files here, if needed
-    if not os.path.exists(horizontal_filename):
-        source_file_path_H = os.path.join(horizontal_folder, horizontal_filename)
-        shutil.copy2(source_file_path_H, os.curdir)
-    if not os.path.exists(vertical_filename):
-        source_file_path_V = os.path.join(vertical_folder, vertical_filename)
-        shutil.copy2(source_file_path_V, os.curdir)
+        horizontal_folder = os.path.join(destination_folder, "myDecon_WBS-H")
+        vertical_folder = os.path.join(destination_folder, "myDecon_WBS-V")        
 
-    # then make a script and execute it to generate the averaged .hifi file
-    output_filename = "{0}-averaged.hifi".format(band_name)
-    output_fullpath = os.path.join(destination_folder, output_filename)
+        horizontal_filename = band_name+"-horizontal.hifi"
+        vertical_filename = band_name+"-vertical.hifi"
 
-    if not os.path.exists(output_fullpath):
-        average_pols_script_filename = write_class_script_to_average_polarizations(destination_folder, band_name)
-        call(["class", "@"+average_pols_script_filename])
+        # first let's copy the .hifi files here, if needed
+        if not os.path.exists(horizontal_filename):
 
-except Exception as e:
-    os.chdir(original_directory)
-    raise e
-finally:
-    os.chdir(original_directory)
+            source_file_path_H = os.path.join(horizontal_folder, horizontal_filename)
+            shutil.copy2(source_file_path_H, os.curdir)
+
+        if not os.path.exists(vertical_filename):
+
+            source_file_path_V = os.path.join(vertical_folder, vertical_filename)
+            shutil.copy2(source_file_path_V, os.curdir)
+
+        # then make a script and execute it to generate the averaged .hifi file
+        output_filename = "{0}-averaged.hifi".format(band_name)
+        output_fullpath = os.path.join(destination_folder, output_filename)
+
+        if not os.path.exists(output_fullpath) or clobber:
+
+            average_pols_script_filename = write_class_script_to_average_polarizations(destination_folder, band_name)
+            call(["class", "-nw", "@"+average_pols_script_filename])
+
+    except Exception as e:
+        os.chdir(original_directory)
+        raise e
+    finally:
+        os.chdir(original_directory)
+
+    return output_fullpath
+
+if __name__ == "__main__":
+
+    destination_folder = "/Users/tsrice/Documents/Data/Herschel_Science_Archive/IRAS16293/level_2_5_all_bands/6a/level2_5/myDecon"
+    band_name = "6a"
+
+    average_polarizations(destination_folder, band_name, clobber=True)
