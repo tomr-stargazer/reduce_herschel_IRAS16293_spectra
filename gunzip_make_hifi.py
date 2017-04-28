@@ -1,10 +1,7 @@
 """
-This is my proof-of-concept that I could, in principle, do the following even ONCE:
+Uncompresses a given data file and then converts it to class .hifi format.
 
-- find a specific .fits.gz file
-- gunzip it
-- make a simple CLASS script that turns it into a .hifi format
-- run that CLASS script.
+Operates on one polarization at a time (and is technically agnostic of polarizations).
 
 """
 
@@ -76,12 +73,7 @@ def convert_FITS_to_HIFI(destination_folder, output_filename, clobber=False):
 if __name__ == "__main__":
 
     destination_folder = "/Users/tsrice/Documents/Data/Herschel_Science_Archive/IRAS16293/level_2_5_all_bands/7a/level2_5/myDecon/myDecon_WBS-V"
-    # fits_gz_filename = "hhifiwbshssb1342191794_25ssv20_1461136819393.fits.gz"
-    # fits_filename = fits_gz_filename.rstrip(".gz")
-    # fits_gz_fullpath = os.path.join(destination_folder, fits_gz_filename)
-
     output_filename = "7a-vertical.hifi"
-    # output_fullpath = os.path.join(destination_folder, output_filename)
 
     convert_FITS_to_HIFI(destination_folder, output_filename, clobber=True)
 

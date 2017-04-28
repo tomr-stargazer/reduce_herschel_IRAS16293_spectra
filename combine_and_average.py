@@ -1,9 +1,7 @@
 """"
-"This is my proof-of-concept that I could, in principle, do the following even ONCE\n:
+Combines and averages the two polarizations of any given band's data.
 
-- find a two .hifi files from different polarizations
-- make a simple CLASS script that combines & averages them
-- run that CLASS script.
+Assumes you've already converted the data from .fits to .hifi format.
 
 """
 
@@ -89,6 +87,7 @@ def average_polarizations(destination_folder, band_name, clobber=False):
         os.chdir(original_directory)
 
     return output_fullpath
+
 
 if __name__ == "__main__":
 
