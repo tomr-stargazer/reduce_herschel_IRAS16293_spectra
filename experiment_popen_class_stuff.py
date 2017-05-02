@@ -72,3 +72,9 @@ def fit_line_and_return_raw_output(
         os.chdir(original_directory)
 
     return output, error
+
+if __name__ == '__main__':
+
+    output, error = fit_line_and_return_raw_output()
+
+    print(output.decode('utf-8'))
