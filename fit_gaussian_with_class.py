@@ -86,7 +86,11 @@ def extract_line_params_from_raw_output(raw_output):
 
 if __name__ == '__main__':
 
-    output, error = fit_line_and_return_raw_output()
+    filename = "3b-averaged.hifi"
+    freq=863071
+    line_params = "0 0 0 3.5 0 7"
+
+    output, error = fit_line_and_return_raw_output(filename, freq, line_params)
     results = extract_line_params_from_raw_output(output)
 
     print(results)
