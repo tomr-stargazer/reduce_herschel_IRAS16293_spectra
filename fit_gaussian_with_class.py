@@ -13,10 +13,43 @@ import numpy as np
 
 root_directory_of_data = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/")
 data_location = os.path.join(root_directory_of_data, "Partially_Reduced_Spectra")
+fit_results_path = os.path.join(root_directory_of_data, "Fit_results")
 
 def fit_line_and_return_raw_output(
     filename = "3b-averaged.hifi", freq=863071, 
-    line_params = "0 0 0 3.5 0 7"):
+    line_params = "0 0 0 3.5 0 7", save=False, 
+    path=fit_results_path, output_file_root=None):
+
+    # fits write fitswrite_test_result.fits /mode spectrum
+    # result
+    # fits write blah
+
+    if save:
+        # construct the two filenames
+        if output_file_root is None:
+            output_file_root = filename.split('.')[0]
+
+        spectrum_filename = output_file_root+"_spectrum.fits"
+        result_filename = output_file_root+"_result.fits"
+
+        spectrum_fullpath = os.path.join(path, spectrum_filename)
+        result_fullpath = os.path.join(path, result_filename)
+
+        # clobber the existing files.
+        if os.path.exists(spectrum_fullpath):
+            os.remove(spectrum_fullpath)
+        if os.path.exists(result_fullpath):
+            os.remove(result_fullpath)
+
+        save_script_snippet = (
+            "fits write \"{0}\" /mode spectrum\n"
+            "result\n"
+            "fits write \"{1}\" /mode spectrum\n"
+            "".format(spectrum_fullpath, result_fullpath)
+            )
+        # print (save_script_snippet)
+    else:
+        save_script_snippet = ""
 
     original_directory = os.getcwd()
 
@@ -36,9 +69,10 @@ def fit_line_and_return_raw_output(
             "method gauss\n"
             "lines 1 \"{2}\"\n" 
             "mini\n"
+            "{3}"
             "sic\\examine R%HEAD%GAU%RESULT\n"
             "sic\\examine R%HEAD%GAU%ERROR\n"
-            "exit\n".format(filename, freq, line_params))
+            "exit\n".format(filename, freq, line_params, save_script_snippet))
 
         path_to_script_with_filename = os.path.join(os.curdir, "first_try_linefit.class")
         target = open(path_to_script_with_filename, 'w')
