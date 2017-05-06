@@ -81,12 +81,13 @@ def fit_line_and_return_raw_output(
             "exit\n".format(
                 filename, freq, line_params, save_script_snippet, smooth_snippet))
 
-        path_to_script_with_filename = os.path.join(os.curdir, "first_try_linefit.class")
+        script_base_filename = 'linefit'
+        path_to_script_with_filename = os.path.join(os.curdir, script_base_filename+".class")
         target = open(path_to_script_with_filename, 'w')
         target.write(class_script_text)
         target.close()
 
-        p = subprocess.Popen(['class', '-nw', "@first_try_linefit"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(['class', '-nw', "@"+script_base_filename], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = p.communicate()
 
     except Exception as e:
