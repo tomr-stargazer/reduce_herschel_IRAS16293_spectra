@@ -17,8 +17,8 @@ fit_results_path = os.path.join(root_directory_of_data, "Fit_results")
 
 def fit_line_and_return_raw_output(
     filename = "3b-averaged.hifi", freq=863071, 
-    line_params = "0 0 0 3.5 0 7", save=False, 
-    path=fit_results_path, output_file_root=None):
+    line_params = "0 0 0 3.5 0 7", smooth_channels=None,
+    save=False, path=fit_results_path, output_file_root=None):
 
     # fits write fitswrite_test_result.fits /mode spectrum
     # result
@@ -51,6 +51,11 @@ def fit_line_and_return_raw_output(
     else:
         save_script_snippet = ""
 
+    if smooth_channels is not None and smooth_channels > 1.5:
+        smooth_snippet = "smooth box {0}\n".format(smooth_channels)
+    else:
+        smooth_snippet = ""
+
     original_directory = os.getcwd()
 
     try:
@@ -66,13 +71,15 @@ def fit_line_and_return_raw_output(
             "set mode x -40 +40\n"
             "set win -5 15\n"
             "base\n"
+            "{4}"
             "method gauss\n"
             "lines 1 \"{2}\"\n" 
             "mini\n"
             "{3}"
             "sic\\examine R%HEAD%GAU%RESULT\n"
             "sic\\examine R%HEAD%GAU%ERROR\n"
-            "exit\n".format(filename, freq, line_params, save_script_snippet))
+            "exit\n".format(
+                filename, freq, line_params, save_script_snippet, smooth_snippet))
 
         path_to_script_with_filename = os.path.join(os.curdir, "first_try_linefit.class")
         target = open(path_to_script_with_filename, 'w')
