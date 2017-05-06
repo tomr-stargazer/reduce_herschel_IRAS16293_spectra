@@ -78,7 +78,7 @@ if True:
         print(gaussian_fit_results)
         print("")
 
-if False:
+if True:
     fit_results_path = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/Fit_results")
     list_of_files = glob.glob(fit_results_path+"/HCN*.fits")
     list_of_spectra = [x for x in list_of_files if 'spectrum.fits' in x]
@@ -172,10 +172,23 @@ for i, (line_freq, line_name) in enumerate(zip(hc15n_line_freqs, hc15n_line_name
     line_filename = band+"-averaged.hifi"
 
     # Use the line center and line width as a hard prior for each fit.
+    n_lines = 1
     line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'] )
+    if line_name == "J= 6-5":
+        custom_window = "-40 -29 -5 15"
+    elif line_name == 'J= 7-6':
+        custom_window = "-15 15 20 30"
+        n_lines = 2
+        line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 1 0 -4.231 0 5.926".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'])
+    elif line_name == 'J= 8-7':
+        custom_window = "-5 15 23 40"
+    elif line_name == 'J= 9-8':
+        custom_window = "-30 -18 -5 15"
+    elif line_name ==  'J=10-9':
+        custom_window = "-5 15 21 36"
 
     raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-        filename=line_filename, freq=line_freq*1000, line_params=line_params_string,
+        filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, custom_window=custom_window,
         smooth_channels=2*line_freq/hcn_line_freqs[0], save=True, output_file_root="HC15N_"+line_name)
 
     gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
@@ -185,7 +198,7 @@ for i, (line_freq, line_name) in enumerate(zip(hc15n_line_freqs, hc15n_line_name
     hc15n_linefits[i] = gaussian_fit_results
 
 
-if False:
+if True:
     fit_results_path = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/Fit_results")
     list_of_files_13 = glob.glob(fit_results_path+"/H13CN*.fits")
     list_of_spectra_13 = [x for x in list_of_files_13 if 'spectrum.fits' in x]
@@ -232,10 +245,94 @@ if True:
         ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
 
         ax.set_xlim(-40, 40)
-        ax.set_ylim(-0.1, 0.2)
+        ax.set_ylim(-0.05, 0.1)
 
         line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
         line_name = "HC15N "+line_name_nospace.lstrip("HC15N_")
-        ax.text(-38, 0.14, line_name)
+        ax.text(-38, 0.07, line_name)
 
     plt.show()
+
+def make_hcn_h13cn_hc15n_figure():
+    fit_results_path = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/Fit_results")
+
+    list_of_files = glob.glob(fit_results_path+"/HCN*.fits")
+    list_of_spectra = [x for x in list_of_files if 'spectrum.fits' in x]
+    list_of_results = [x for x in list_of_files if 'result.fits' in x]
+
+    list_of_files_13 = glob.glob(fit_results_path+"/H13CN*.fits")
+    list_of_spectra_13 = [x for x in list_of_files_13 if 'spectrum.fits' in x]
+    list_of_results_13 = [x for x in list_of_files_13 if 'result.fits' in x]
+
+    list_of_files_15 = glob.glob(fit_results_path+"/HC15N*.fits")
+    list_of_spectra_15 = [x for x in list_of_files_15 if 'spectrum.fits' in x]
+    list_of_results_15 = [x for x in list_of_files_15 if 'result.fits' in x]
+
+    fig = plt.figure()
+
+    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra, list_of_results)):
+
+        if i > 4:
+            break
+
+        ax = fig.add_subplot(3,5,i+1)
+
+        spectrum_tuple = load_a_spectrum(spectrum_fname)
+        result_tuple = load_a_spectrum(result_fname)
+
+        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=1, drawstyle='steps-mid')
+        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+
+        ax.set_xlim(-40, 40)
+        ax.set_ylim(-0.5, 1)
+
+        line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
+        line_name = "HCN "+line_name_nospace.lstrip("HCN")
+        ax.text(-30, 0.8, line_name)
+
+    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_13, list_of_results_13)):
+
+        if i > 4:
+            break
+
+        ax = fig.add_subplot(3,5,i+6)
+
+        spectrum_tuple = load_a_spectrum(spectrum_fname)
+        result_tuple = load_a_spectrum(result_fname)
+
+        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=1, drawstyle='steps-mid')
+        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+
+        ax.set_xlim(-40, 40)
+        ax.set_ylim(-0.1, 0.2)
+
+        line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
+        line_name = "H13CN "+line_name_nospace.lstrip("H13CN_")
+        ax.text(-38, 0.14, line_name)
+
+    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_15, list_of_results_15)):
+
+        if i > 4:
+            break
+
+        ax = fig.add_subplot(3,5,i+11)
+
+        spectrum_tuple = load_a_spectrum(spectrum_fname)
+        result_tuple = load_a_spectrum(result_fname)
+
+        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=1, drawstyle='steps-mid')
+        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+
+        ax.set_xlim(-40, 40)
+        ax.set_ylim(-0.05, 0.1)
+
+        line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
+        line_name = "HC15N "+line_name_nospace.lstrip("HC15N_")
+        ax.text(-38, 0.07, line_name)
+
+
+    plt.show()
+    return fig
+
+
+
