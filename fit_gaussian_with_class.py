@@ -16,7 +16,7 @@ data_location = os.path.join(root_directory_of_data, "Partially_Reduced_Spectra"
 fit_results_path = os.path.join(root_directory_of_data, "Fit_results")
 
 def fit_line_and_return_raw_output(
-    filename = "3b-averaged.hifi", freq=863071, 
+    filename = "3b-averaged.hifi", freq=863071, n_lines=1,
     line_params = "0 0 0 3.5 0 7", custom_window="-5 15", smooth_channels=None,
     save=False, path=fit_results_path, output_file_root=None):
 
@@ -73,13 +73,13 @@ def fit_line_and_return_raw_output(
             "base\n"
             "{4}"
             "method gauss\n"
-            "lines 1 \"{2}\"\n" 
+            "lines {6:d} \"{2}\"\n" 
             "mini\n"
             "{3}"
             "sic\\examine R%HEAD%GAU%RESULT\n"
             "sic\\examine R%HEAD%GAU%ERROR\n"
             "exit\n".format(
-                filename, freq, line_params, save_script_snippet, smooth_snippet, custom_window))
+                filename, freq, line_params, save_script_snippet, smooth_snippet, custom_window, n_lines))
 
         script_base_filename = 'linefit'
         path_to_script_with_filename = os.path.join(os.curdir, script_base_filename+".class")
