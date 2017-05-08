@@ -369,5 +369,13 @@ def make_hcn_h13cn_hc15n_figure():
     plt.show()
     return fig
 
+if __name__ == "__main__":
 
+    if True:
 
+        paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
+        fig_filename = "in_progress_graphics/hifi_hcn_lines.pdf"
+        fig_fullpath = os.path.join(paper_path, fig_filename)
+
+        fig = make_hcn_h13cn_hc15n_figure()
+        fig.savefig(fig_fullpath, bbox_inches='tight')
