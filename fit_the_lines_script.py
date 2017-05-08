@@ -133,6 +133,7 @@ def baseline_spectra_and_compute_fits():
         print(gaussian_fit_results)
         print("")
         hcn_linefits[i] = gaussian_fit_results
+        hcn_linefits[i]['line_name'] = line_name
 
     # Keep those fits around in a list or a dict or something.
     # Second, do that with the h13cn lines. 
@@ -161,6 +162,7 @@ def baseline_spectra_and_compute_fits():
         print(gaussian_fit_results)
         print("")
         h13cn_linefits[i] = gaussian_fit_results
+        h13cn_linefits[i]['line_name'] = line_name
 
     # Finally, do that with the h15cn lines.
     # Use the line center and the linewidth as firm priors.
@@ -202,6 +204,7 @@ def baseline_spectra_and_compute_fits():
         print(gaussian_fit_results)
         print("")
         hc15n_linefits[i] = gaussian_fit_results
+        hc15n_linefits[i]['line_name'] = line_name
 
     return hcn_linefits, h13cn_linefits, hc15n_linefits
 
@@ -286,6 +289,7 @@ def make_hcn_h13cn_hc15n_figure():
             break
 
         ax = fig.add_subplot(3,5,i+1)
+        ax.tick_params(axis='both', labelsize=7)
 
         spectrum_tuple = load_a_spectrum(spectrum_fname)
         result_tuple = load_a_spectrum(result_fname)
@@ -298,7 +302,11 @@ def make_hcn_h13cn_hc15n_figure():
 
         line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
         line_name = "HCN "+line_name_nospace.lstrip("HCN")
-        ax.text(-25, 0.8, line_name)
+        ax.text(-25, 0.8, line_name, fontsize=9, bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+
+        ax.tick_params(axis='x', labelbottom='off')
+        if i>0:
+            ax.tick_params(axis='y', labelleft='off')
 
     for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_13, list_of_results_13)):
 
@@ -306,6 +314,7 @@ def make_hcn_h13cn_hc15n_figure():
             break
 
         ax = fig.add_subplot(3,5,i+6)
+        ax.tick_params(axis='both', labelsize=7)
 
         spectrum_tuple = load_a_spectrum(spectrum_fname)
         result_tuple = load_a_spectrum(result_fname)
@@ -314,11 +323,15 @@ def make_hcn_h13cn_hc15n_figure():
         ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
 
         ax.set_xlim(-30, 30)
-        ax.set_ylim(-0.1, 0.2)
+        ax.set_ylim(-0.09, 0.15)
 
         line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
-        line_name = "H13CN "+line_name_nospace.lstrip("H13CN_")
-        ax.text(-28, 0.14, line_name)
+        line_name = "H$^{13}$CN "+line_name_nospace.lstrip("H13CN_")
+        ax.text(-25, 0.11, line_name, fontsize=9, bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+
+        ax.tick_params(axis='x', labelbottom='off')
+        if i>0:
+            ax.tick_params(axis='y', labelleft='off')        
 
     for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_15, list_of_results_15)):
 
@@ -326,6 +339,7 @@ def make_hcn_h13cn_hc15n_figure():
             break
 
         ax = fig.add_subplot(3,5,i+11)
+        ax.tick_params(axis='both', labelsize=7)
 
         spectrum_tuple = load_a_spectrum(spectrum_fname)
         result_tuple = load_a_spectrum(result_fname)
@@ -337,8 +351,20 @@ def make_hcn_h13cn_hc15n_figure():
         ax.set_ylim(-0.05, 0.1)
 
         line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
-        line_name = "HC15N "+line_name_nospace.lstrip("HC15N_")
-        ax.text(-28, 0.07, line_name)
+        line_name = "HC$^{15}$N "+line_name_nospace.lstrip("HC15N_")
+        ax.text(-25, 0.07, line_name, fontsize=9, bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+
+        if i==1:
+            xs = np.arange(-30, 30, 0.5)
+            a = 0.03666304656927235
+            b = 3.67
+            c = 6.45 / 2.35482
+            ys = a * np.exp( - (xs-b)**2 / (2*c**2))
+
+            ax.plot(xs, ys, 'C0', lw=1)
+
+        if i>0:
+            ax.tick_params(axis='y', labelleft='off')
 
     plt.show()
     return fig
