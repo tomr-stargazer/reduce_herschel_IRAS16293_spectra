@@ -17,7 +17,7 @@ fit_results_path = os.path.join(root_directory_of_data, "Fit_results")
 
 def fit_line_and_return_raw_output(
     filename = "3b-averaged.hifi", freq=863071, n_lines=1,
-    line_params = "0 0 0 3.5 0 7", custom_window="-5 15", smooth_channels=None,
+    line_params = "0 0 0 3.5 0 7", custom_window="-5 15", smooth_gauss=None,
     save=False, path=fit_results_path, output_file_root=None):
 
     # fits write fitswrite_test_result.fits /mode spectrum
@@ -51,8 +51,8 @@ def fit_line_and_return_raw_output(
     else:
         save_script_snippet = ""
 
-    if smooth_channels is not None and smooth_channels > 1.5:
-        smooth_snippet = "smooth box {0}\n".format(smooth_channels)
+    if smooth_gauss is not None:
+        smooth_snippet = "smooth gauss {0}\n".format(smooth_gauss)
     else:
         smooth_snippet = ""
 
@@ -69,6 +69,7 @@ def fit_line_and_return_raw_output(
             "set unit v v\n"
             "mod freq {1}\n" 
             "set mode x -40 +40\n"
+            "extract -100 100\n"
             "set win {5}\n"
             "base\n"
             "{4}"

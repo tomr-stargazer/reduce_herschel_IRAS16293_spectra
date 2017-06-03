@@ -58,8 +58,25 @@ def which_hifi_band(freq):
         return "None"
 
 
+def make_linestring(plain_molecule_name, Ju):
+
+    return "{0}_Ju={1:02d}".format(plain_molecule_name, Ju)
+
+
+def parse_linestring(linestring):
+
+    split_string = linestring.split("_Ju=")
+
+    plain_molecule_name = split_string[0]
+    Ju = int(split_string[1])
+
+    return plain_molecule_name, Ju
+
+
 def baseline_and_fit_HCN_lines():
-    for line_freq, line_name in zip(hcn_line_freqs, hcn_line_names):
+    for line_freq, Ju in zip(hcn_line_freqs, common_Ju_list):
+
+        line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
 
@@ -70,7 +87,7 @@ def baseline_and_fit_HCN_lines():
         line_filename = band+"-averaged.hifi"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, smooth_channels=2*line_freq/hcn_line_freqs[0],
+            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62,
             save=True, output_file_root="HCN"+line_name)
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
@@ -115,7 +132,9 @@ def baseline_spectra_and_compute_fits():
     hcn_linefits = OrderedDict()
 
     # first, fit (and save the results of) all the HCN lines.
-    for i, (line_freq, line_name) in enumerate(zip(hcn_line_freqs, hcn_line_names)):
+    for i, (line_freq, Ju) in enumerate(zip(hcn_line_freqs, common_Ju_list)):
+
+        line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
         print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
@@ -125,8 +144,8 @@ def baseline_spectra_and_compute_fits():
         line_filename = band+"-averaged.hifi"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, smooth_channels=2*line_freq/hcn_line_freqs[0],
-            save=True, output_file_root="HCN"+line_name)
+            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62,
+            save=True, output_file_root=make_linestring("HCN", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
@@ -139,7 +158,9 @@ def baseline_spectra_and_compute_fits():
     # Second, do that with the h13cn lines. 
     h13cn_linefits = OrderedDict()
 
-    for i, (line_freq, line_name) in enumerate(zip(h13cn_line_freqs, h13cn_line_names)):
+    for i, (line_freq, Ju) in enumerate(zip(h13cn_line_freqs, common_Ju_list)):
+
+        line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
         print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
@@ -152,10 +173,12 @@ def baseline_spectra_and_compute_fits():
 
         # Use the line center and line width as a soft prior for each fit.
         line_params_string = "0 0 0 {0:.2f} 0 {1:.2f}".format(hcn_linefits[i]['v_cen'], hcn_linefits[i]['v_fwhm'] )
+        if line_name == "J=10 - 9":
+            line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(hcn_linefits[i]['v_cen'], hcn_linefits[i]['v_fwhm'] )
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string,
-            smooth_channels=2*line_freq/hcn_line_freqs[0], save=True, output_file_root="H13CN_"+line_name)
+            smooth_gauss=0.62, save=True, output_file_root=make_linestring("H13CN", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
@@ -168,7 +191,9 @@ def baseline_spectra_and_compute_fits():
     # Use the line center and the linewidth as firm priors.
     hc15n_linefits = OrderedDict()
 
-    for i, (line_freq, line_name) in enumerate(zip(hc15n_line_freqs, hc15n_line_names)):
+    for i, (line_freq, Ju) in enumerate(zip(hc15n_line_freqs, common_Ju_list)):
+
+        line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
         print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
@@ -182,22 +207,22 @@ def baseline_spectra_and_compute_fits():
         # Use the line center and line width as a hard prior for each fit.
         n_lines = 1
         line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'] )
-        if line_name == "J= 6-5":
+        if Ju == 6:
             custom_window = "-40 -29 -5 15"
-        elif line_name == 'J= 7-6':
+        elif Ju == 7:
             custom_window = "-15 15 20 30"
             n_lines = 2
             line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 1 0 -4.231 0 5.926".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'])
-        elif line_name == 'J= 8-7':
+        elif Ju == 8:
             custom_window = "-5 15 23 40"
-        elif line_name == 'J= 9-8':
+        elif Ju == 9:
             custom_window = "-30 -18 -5 15"
-        elif line_name ==  'J=10-9':
+        elif Ju == 10:
             custom_window = "-5 15 21 36"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, custom_window=custom_window,
-            smooth_channels=2*line_freq/hcn_line_freqs[0], save=True, output_file_root="HC15N_"+line_name)
+            smooth_gauss=0.62, save=True, output_file_root=make_linestring("HC15N", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
@@ -266,6 +291,20 @@ def make_hc15n_all_lines_fig():
     plt.show()
     return fig
 
+
+def plottable_latex_string(plain_molecule_name, Ju):
+    """ Assumes the molecule name is simple like HCN or H13CN """
+    latex_molname_dict = {}
+    latex_molname_dict['HCN'] = 'HCN'
+    latex_molname_dict['H13CN'] = r'H$^{13}$CN'
+    latex_molname_dict['HC15N'] = r'HC$^{15}$N'
+
+    transition_name = "J$={0}-{1}$".format(Ju, Ju-1)
+
+    plot_string = "{0}  {1}".format(latex_molname_dict[plain_molecule_name], transition_name)
+    return plot_string
+
+
 def make_hcn_h13cn_hc15n_figure():
     fit_results_path = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/Fit_results")
 
@@ -282,6 +321,8 @@ def make_hcn_h13cn_hc15n_figure():
     list_of_results_15 = [x for x in list_of_files_15 if 'result.fits' in x]
 
     fig = plt.figure(figsize=(8.6, 4.8))
+
+    text_params = dict(fontsize=11, family='serif', bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
 
     for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra, list_of_results)):
 
@@ -300,9 +341,9 @@ def make_hcn_h13cn_hc15n_figure():
         ax.set_xlim(-30, 30)
         ax.set_ylim(-0.1, 1)
 
-        line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
-        line_name = "HCN "+line_name_nospace.lstrip("HCN")
-        ax.text(-25, 0.8, line_name, fontsize=9, bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
+        plottable_string = plottable_latex_string(mol_name, Ju)
+        ax.text(-25, 0.8, plottable_string, text_params)
 
         ax.tick_params(axis='x', labelbottom='off')
         if i>0:
@@ -325,9 +366,9 @@ def make_hcn_h13cn_hc15n_figure():
         ax.set_xlim(-30, 30)
         ax.set_ylim(-0.09, 0.15)
 
-        line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
-        line_name = "H$^{13}$CN "+line_name_nospace.lstrip("H13CN_")
-        ax.text(-25, 0.11, line_name, fontsize=9, bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
+        plottable_string = plottable_latex_string(mol_name, Ju)
+        ax.text(-25, 0.11, plottable_string, text_params)
 
         ax.tick_params(axis='x', labelbottom='off')
         if i>0:
@@ -350,10 +391,11 @@ def make_hcn_h13cn_hc15n_figure():
         ax.set_xlim(-30, 30)
         ax.set_ylim(-0.05, 0.1)
 
-        line_name_nospace = spectrum_fname.split('/')[-1].rstrip('_spectrum.fits')
-        line_name = "HC$^{15}$N "+line_name_nospace.lstrip("HC15N_")
-        ax.text(-25, 0.07, line_name, fontsize=9, bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
+        plottable_string = plottable_latex_string(mol_name, Ju)
+        ax.text(-25, 0.07, plottable_string, text_params)
 
+        # this is to plot the blue partial component of the blended hc15n 7-6 fit (very tacked-on)
         if i==1:
             xs = np.arange(-30, 30, 0.5)
             a = 0.03666304656927235
@@ -366,12 +408,15 @@ def make_hcn_h13cn_hc15n_figure():
         if i>0:
             ax.tick_params(axis='y', labelleft='off')
 
+    plt.tight_layout(w_pad=0.5, h_pad=0.3)
     plt.show()
     return fig
 
 if __name__ == "__main__":
 
     if True:
+
+        fit_tuple = baseline_spectra_and_compute_fits()
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_hcn_lines.pdf"
