@@ -163,13 +163,13 @@ def make_c17o_all_lines_fig():
 
     return fig
 
-    
+
 def baseline_spectra_and_compute_fits():
     # ok so the REAL loop is gonna look like this:
-    hcn_linefits = OrderedDict()
+    c18o_linefits = OrderedDict()
 
     # first, fit (and save the results of) all the HCN lines.
-    for i, (line_freq, line_name) in enumerate(zip(hcn_line_freqs, hcn_line_names)):
+    for i, (line_freq, line_name) in enumerate(zip(c18o_line_freqs, c18o_line_names)):
 
         band = which_hifi_band(line_freq)
         print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
@@ -180,89 +180,89 @@ def baseline_spectra_and_compute_fits():
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62,
-            save=True, output_file_root="HCN"+line_name)
+            save=True, output_file_root="C18O"+line_name)
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
         print(gaussian_fit_results)
         print("")
-        hcn_linefits[i] = gaussian_fit_results
-        hcn_linefits[i]['line_name'] = line_name
+        c18o_linefits[i] = gaussian_fit_results
+        c18o_linefits[i]['line_name'] = line_name
 
     # Keep those fits around in a list or a dict or something.
     # Second, do that with the h13cn lines. 
-    h13cn_linefits = OrderedDict()
+    c17o_linefits = OrderedDict()
 
-    for i, (line_freq, line_name) in enumerate(zip(h13cn_line_freqs, h13cn_line_names)):
+    for i, (line_freq, line_name) in enumerate(zip(c17o_line_freqs, c17o_line_names)):
 
         band = which_hifi_band(line_freq)
         print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
         if band == "None":
             continue
-        if i not in hcn_linefits.keys():
+        if i not in c18o_linefits.keys():
             continue
 
         line_filename = band+"-averaged.hifi"
 
         # Use the line center and line width as a soft prior for each fit.
-        line_params_string = "0 0 0 {0:.2f} 0 {1:.2f}".format(hcn_linefits[i]['v_cen'], hcn_linefits[i]['v_fwhm'] )
-        if line_name == "J=10 - 9":
-            line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(hcn_linefits[i]['v_cen'], hcn_linefits[i]['v_fwhm'] )
+        line_params_string = "0 0 0 {0:.2f} 0 {1:.2f}".format(c18o_linefits[i]['v_cen'], c18o_linefits[i]['v_fwhm'] )
+        # if line_name == "J=10 - 9":
+        #     line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(hcn_linefits[i]['v_cen'], hcn_linefits[i]['v_fwhm'] )
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string,
-            smooth_gauss=0.62, save=True, output_file_root="H13CN_"+line_name)
+            smooth_gauss=0.62, save=True, output_file_root="C17O_"+line_name)
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
         print(gaussian_fit_results)
         print("")
-        h13cn_linefits[i] = gaussian_fit_results
-        h13cn_linefits[i]['line_name'] = line_name
+        c17o_linefits[i] = gaussian_fit_results
+        c17o_linefits[i]['line_name'] = line_name
 
     # Finally, do that with the h15cn lines.
     # Use the line center and the linewidth as firm priors.
-    hc15n_linefits = OrderedDict()
+    # hc15n_linefits = OrderedDict()
 
-    for i, (line_freq, line_name) in enumerate(zip(hc15n_line_freqs, hc15n_line_names)):
+    # for i, (line_freq, line_name) in enumerate(zip(hc15n_line_freqs, hc15n_line_names)):
 
-        band = which_hifi_band(line_freq)
-        print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
-        if band == "None":
-            continue
-        if i not in hcn_linefits.keys():
-            continue
+    #     band = which_hifi_band(line_freq)
+    #     print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
+    #     if band == "None":
+    #         continue
+    #     if i not in hcn_linefits.keys():
+    #         continue
 
-        line_filename = band+"-averaged.hifi"
+    #     line_filename = band+"-averaged.hifi"
 
-        # Use the line center and line width as a hard prior for each fit.
-        n_lines = 1
-        line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'] )
-        if line_name == "J= 6-5":
-            custom_window = "-40 -29 -5 15"
-        elif line_name == 'J= 7-6':
-            custom_window = "-15 15 20 30"
-            n_lines = 2
-            line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 1 0 -4.231 0 5.926".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'])
-        elif line_name == 'J= 8-7':
-            custom_window = "-5 15 23 40"
-        elif line_name == 'J= 9-8':
-            custom_window = "-30 -18 -5 15"
-        elif line_name ==  'J=10-9':
-            custom_window = "-5 15 21 36"
+    #     # Use the line center and line width as a hard prior for each fit.
+    #     n_lines = 1
+    #     line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'] )
+    #     if line_name == "J= 6-5":
+    #         custom_window = "-40 -29 -5 15"
+    #     elif line_name == 'J= 7-6':
+    #         custom_window = "-15 15 20 30"
+    #         n_lines = 2
+    #         line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 1 0 -4.231 0 5.926".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'])
+    #     elif line_name == 'J= 8-7':
+    #         custom_window = "-5 15 23 40"
+    #     elif line_name == 'J= 9-8':
+    #         custom_window = "-30 -18 -5 15"
+    #     elif line_name ==  'J=10-9':
+    #         custom_window = "-5 15 21 36"
 
-        raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, custom_window=custom_window,
-            smooth_gauss=0.62, save=True, output_file_root="HC15N_"+line_name)
+    #     raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
+    #         filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, custom_window=custom_window,
+    #         smooth_gauss=0.62, save=True, output_file_root="HC15N_"+line_name)
 
-        gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
+    #     gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
-        print(gaussian_fit_results)
-        print("")
-        hc15n_linefits[i] = gaussian_fit_results
-        hc15n_linefits[i]['line_name'] = line_name
+    #     print(gaussian_fit_results)
+    #     print("")
+    #     hc15n_linefits[i] = gaussian_fit_results
+    #     hc15n_linefits[i]['line_name'] = line_name
 
-    return hcn_linefits, h13cn_linefits, hc15n_linefits
+    return c18o_linefits, c17o_linefits
 
 
 def make_h13cn_all_lines_fig():
