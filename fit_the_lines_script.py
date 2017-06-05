@@ -16,6 +16,7 @@ from fit_gaussian_with_class import fit_line_and_return_raw_output, extract_line
 from read_in_fits_spectrum_from_class import load_a_spectrum
 from line_frequencies_and_names import *
 
+# currently unused.
 class EmissionLine:
     def __init__(self, freq, molecule_name, line_name):
 
@@ -28,6 +29,7 @@ class EmissionLine:
         return self.molecule_name+" "+self.line_name
 
 
+# should re-implement as a dict or something with a simple accompanying function.
 def which_hifi_band(freq):
 
     if 480 < freq < 560:
@@ -152,7 +154,10 @@ def baseline_spectra_and_compute_fits():
         print(gaussian_fit_results)
         print("")
         hcn_linefits[i] = gaussian_fit_results
-        hcn_linefits[i]['line_name'] = line_name
+        hcn_linefits[i]['freq'] = line_freq 
+        hcn_linefits[i]['Molecule'] = 'HCN'
+        hcn_linefits[i]['Ju'] = Ju
+        
 
     # Keep those fits around in a list or a dict or something.
     # Second, do that with the h13cn lines. 
@@ -185,7 +190,10 @@ def baseline_spectra_and_compute_fits():
         print(gaussian_fit_results)
         print("")
         h13cn_linefits[i] = gaussian_fit_results
-        h13cn_linefits[i]['line_name'] = line_name
+        h13cn_linefits[i]['freq'] = line_freq 
+        h13cn_linefits[i]['Molecule'] = 'H13CN'
+        h13cn_linefits[i]['Ju'] = Ju
+        
 
     # Finally, do that with the h15cn lines.
     # Use the line center and the linewidth as firm priors.
@@ -229,7 +237,10 @@ def baseline_spectra_and_compute_fits():
         print(gaussian_fit_results)
         print("")
         hc15n_linefits[i] = gaussian_fit_results
-        hc15n_linefits[i]['line_name'] = line_name
+        hc15n_linefits[i]['freq'] = line_freq 
+        hc15n_linefits[i]['Molecule'] = 'HC15N'
+        hc15n_linefits[i]['Ju'] = Ju
+        
 
     return hcn_linefits, h13cn_linefits, hc15n_linefits
 
