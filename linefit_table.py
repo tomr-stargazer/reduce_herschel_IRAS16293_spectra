@@ -1,5 +1,5 @@
 """ 
-Works with 
+Works with the output of the Herschel-fit lines to make something workable.
 
 """
 
