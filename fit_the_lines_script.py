@@ -6,6 +6,7 @@ This is a script to fit the damn lines.
 import glob
 import os
 from collections import OrderedDict
+import pdb
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -234,6 +235,10 @@ def baseline_spectra_and_compute_fits():
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
+        if n_lines == 2:
+            print(str(raw_gaussian_result, 'utf-8'), str(raw_gaussian_error, 'utf-8'))
+            pdb.set_trace()         
+
         print(gaussian_fit_results)
         print("")
         hc15n_linefits[i] = gaussian_fit_results
@@ -408,13 +413,20 @@ def make_hcn_h13cn_hc15n_figure():
 
         # this is to plot the blue partial component of the blended hc15n 7-6 fit (very tacked-on)
         if i==1:
-            xs = np.arange(-30, 30, 0.5)
+            xs = np.arange(-30, 30, 0.1)
             a = 0.03666304656927235
             b = 3.67
             c = 6.45 / 2.35482
             ys = a * np.exp( - (xs-b)**2 / (2*c**2))
 
             ax.plot(xs, ys, 'C0', lw=1)
+
+            a2 = 0.35102
+            b2 = -4.813
+            c2 = 6.062 / 2.35482
+            ys2 = a2 * np.exp( - (xs-b2)**2 / (2*c2**2))
+
+            ax.plot(xs, ys2, 'C1', lw=1)
 
         if i>0:
             ax.tick_params(axis='y', labelleft='off')

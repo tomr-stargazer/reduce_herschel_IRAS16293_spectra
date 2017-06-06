@@ -6,6 +6,7 @@ This is a script to fit the damn lines.
 import glob
 import os
 from collections import OrderedDict
+import pdb
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -219,21 +220,27 @@ def co_baseline_spectra_and_compute_fits():
         line_filename = band+"-averaged.hifi"
 
         # Use the line center and line width as a soft prior for each fit.
+        n_lines = 1
         line_params_string = "0 0 0 {0:.2f} 0 {1:.2f}".format(c18o_linefits[i]['v_cen'], c18o_linefits[i]['v_fwhm'] )
-        # if line_name == "J=10 - 9":
-        #     line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}".format(hcn_linefits[i]['v_cen'], hcn_linefits[i]['v_fwhm'] )
+        if Ju == 7:
+            n_lines = 2
+            line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 0 1 {2:.2f} 0 {1:.2f}".format(c18o_linefits[i]['v_cen'], c18o_linefits[i]['v_fwhm'], c18o_linefits[i]['v_cen']-1.525)
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, line_params=line_params_string,
+            filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, 
             smooth_gauss=0.62, save=True, output_file_root=make_linestring("C17O", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
+
+        if n_lines == 2:
+            print(str(raw_gaussian_result, 'utf-8'), str(raw_gaussian_error, 'utf-8'))
+            pdb.set_trace() 
 
         print(gaussian_fit_results)
         print("")
         c17o_linefits[i] = gaussian_fit_results
         c17o_linefits[i]['freq'] = line_freq 
-        c17o_linefits[i]['Molecule'] = 'H13CN'
+        c17o_linefits[i]['Molecule'] = 'C17O'
         c17o_linefits[i]['Ju'] = Ju
 
 
@@ -314,6 +321,23 @@ def make_c18o_c17o_figure():
         plottable_string = plottable_latex_string(mol_name, Ju)
         ax.text(-10, 0.6, plottable_string, text_params)
 
+        # this is to plot the blue partial component of the blended c17o 7-6 / h2co 11_0,1 - 10_0,10 fit (very tacked-on)
+        if i==2:
+            xs = np.arange(-30, 30, 0.1)
+            a = 0.23865852085409806
+            b = 3.77
+            c = 3.56 / 2.35482
+            ys = a * np.exp( - (xs-b)**2 / (2*c**2))
+
+            ax.plot(xs, ys, 'C0', lw=1)
+
+            a2 = 0.16037
+            b2 = 2.250
+            c2 = 6.228 / 2.35482
+            ys2 = a2 * np.exp( - (xs-b2)**2 / (2*c2**2))
+
+            ax.plot(xs, ys2, 'C1', lw=1)
+
         if i>0:
             ax.tick_params(axis='y', labelleft='off')        
 
@@ -326,7 +350,7 @@ if __name__ == "__main__":
 
     if True:
 
-        # fit_tuple = co_baseline_spectra_and_compute_fits()
+        fit_tuple = co_baseline_spectra_and_compute_fits()
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_co_lines.pdf"
