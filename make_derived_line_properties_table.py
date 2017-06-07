@@ -32,11 +32,11 @@ def h13cn_Nupper(flux, tau_h13cn, A_ul, freq, eta_bf):
     return Nupper.to(u.cm**-2)
 
 def herschel_beamsize_from_freq(freq):
-        herschel_diameter = 3.5 * u.m
-        wavelength = c.c / freq
-        
-        theta = 1.22 * (wavelength / herschel_diameter) * u.rad
-        return theta.to(u.arcsec)
+    herschel_diameter = 3.5 * u.m
+    wavelength = c.c / freq
+    
+    theta = 1.22 * (wavelength / herschel_diameter) * u.rad
+    return theta.to(u.arcsec)
 
 
 
