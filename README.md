@@ -1,10 +1,12 @@
 ## README
 
-Usage:
+Basic Reduction Usage:
 python generate_averaged_hifi_spectra.py
 
-ok so yeah
-we are writing python code that generates and executes class scripts that reduce the HIFI data, making it suitable for analysis.
+Usage to get derived properties ("the results"):
+python get_column_densities_and_HCN_abundance.py
+
+This contains python code that generates and executes class scripts that reduce the HIFI data, making it suitable for analysis.
 
 the data structure is basically:
 
