@@ -3,6 +3,8 @@ Works with the output of the Herschel-fit lines to make something workable.
 
 """
 
+import pdb
+
 import numpy as np
 import astropy.table
 import astropy.units as u
@@ -52,5 +54,19 @@ def prepare_linefit_table_for_latex(hcn_meta_table):
 
 
 
+def make_co_linefit_table(fit_tuple):
+    """ Takes the output of `baseline_spectra_and_compute_fits`, returns a table """
 
+    c18o_fits, c17o_fits = fit_tuple
+
+    c18o_table = astropy.table.Table([x for x in c18o_fits.values()], names=c18o_fits[0].keys())
+    c18o_table_re = c18o_table[('Molecule', 'Ju', *c18o_table.colnames[:-2])]
+
+    c17o_table = astropy.table.Table([x for x in c17o_fits.values()], names=c17o_fits[0].keys())
+    c17o_table_re = c17o_table[('Molecule', 'Ju', *c17o_table.colnames[:-2])]
+
+    co_meta_table = astropy.table.vstack([c18o_table_re[:6], c17o_table_re[:6]])
+    co_meta_table['freq'].unit = u.GHz
+
+    return co_meta_table
 
