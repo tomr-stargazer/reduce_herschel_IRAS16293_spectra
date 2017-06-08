@@ -100,7 +100,5 @@ def co_make_derived_props_table(linefit_table):
     new_table = astropy.table.Table([Ju_column, N_upper_column], 
                                     names=['J_upper', "N(c18o)_upper"])
 
-    pdb.set_trace()
-
     return new_table
 
