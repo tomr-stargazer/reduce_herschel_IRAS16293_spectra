@@ -100,7 +100,6 @@ def make_derived_props_table_ground(linefit_table):
     new_table = astropy.table.Table([Ju_column, h13cn_tau, N_upper_column, fractionation_column_ism, fractionation_column_solar], 
                                     names=['J_upper', 'tau_h13cn', "N(h13cn)_upper", "14N/15N ratio (ISM)", "14N/15N ratio (solar)"])
 
-    pdb.set_trace()
     return new_table
 
 
