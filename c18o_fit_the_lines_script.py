@@ -356,7 +356,7 @@ if __name__ == "__main__":
 
     if True:
 
-        fit_tuple = co_baseline_spectra_and_compute_fits(verbose=True)
+        co_fit_tuple = co_baseline_spectra_and_compute_fits(verbose=True)
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_co_lines.pdf"
