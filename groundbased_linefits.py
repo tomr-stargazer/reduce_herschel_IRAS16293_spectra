@@ -11,7 +11,7 @@ import astropy.units as u
 import astropy.constants as c
 
 from load_timasss_table import timasss_table
-from make_derived_line_properties_table import h13cn_Nupper
+from make_derived_line_properties_table import iso_Nupper
 from optical_depth_handling import tau_iso, tau_main, isotopic_ratio_from_taus
 
 
@@ -92,7 +92,7 @@ def make_derived_props_table_ground(linefit_table):
     eta_bf = theta_source**2 / (theta_source**2 + beamsizes_array**2)
 
 
-    N_upper_column = h13cn_Nupper(h13cn_subtable['Flux'], h13cn_tau, h13cn_subtable['Aij'], h13cn_subtable['Frequency'], eta_bf)
+    N_upper_column = iso_Nupper(h13cn_subtable['Flux'], h13cn_tau, h13cn_subtable['Aij'], h13cn_subtable['Frequency'], eta_bf)
     fractionation_column_ism = isotopic_ratio_from_taus(tau_main(h13cn_tau, 69), hc15n_tau)
     fractionation_column_solar = isotopic_ratio_from_taus(tau_main(h13cn_tau, 89), hc15n_tau)
 
@@ -102,6 +102,35 @@ def make_derived_props_table_ground(linefit_table):
 
     return new_table
 
+
+def make_co_derived_props_table_ground(linefit_table):
+
+    # so ultimately we're deriving N_upper.
+    c18o_subtable = linefit_table[linefit_table['Molecule'] == 'C18O']
+    c17o_subtable = linefit_table[linefit_table['Molecule'] == 'C17O']
+
+    Ju_column = c18o_subtable['Ju']
+    c18o_tau = 0.001 * np.ones_like(Ju_column)
+    # h13cn_tau = tau_iso(h13cn_subtable['Int'], hcn_subtable['Int'])
+    # hc15n_tau = tau_iso(hc15n_subtable['Int'], hcn_subtable['Int'])
+
+    theta_source = 15.5*u.arcsec # from ALMA image of h13cn 8-7 emission
+    beamsizes = [ ground_beamsize_from_freq(row['Frequency']) for row in c18o_subtable ]
+    beamsizes_array = u.Quantity(beamsizes)
+    eta_bf = theta_source**2 / (theta_source**2 + beamsizes_array**2)
+
+
+    N_upper_column = iso_Nupper(c18o_subtable['Flux'], c18o_tau, c18o_subtable['Aij'], c18o_subtable['Frequency'], eta_bf)
+    # fractionation_column_ism = isotopic_ratio_from_taus(tau_main(h13cn_tau, 69), hc15n_tau)
+    # fractionation_column_solar = isotopic_ratio_from_taus(tau_main(h13cn_tau, 89), hc15n_tau)
+
+    # return N_upper_column
+    new_table = astropy.table.Table([Ju_column, N_upper_column], 
+                                    names=['J_upper', "N(c18o)_upper"])
+
+    pdb.set_trace()
+
+    return new_table
 
 # let's try this again.
 
