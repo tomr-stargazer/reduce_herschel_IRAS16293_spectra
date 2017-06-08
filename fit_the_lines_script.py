@@ -130,7 +130,12 @@ def make_hcn_all_lines_fig():
     return fig
 
 
-def baseline_spectra_and_compute_fits():
+def baseline_spectra_and_compute_fits(verbose=False):
+
+    def vprint(*args):
+        if verbose:
+            print(*args)
+
     # ok so the REAL loop is gonna look like this:
     hcn_linefits = OrderedDict()
 
@@ -140,7 +145,7 @@ def baseline_spectra_and_compute_fits():
         line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
-        print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
+        vprint(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
         if band == "None":
             continue
 
@@ -152,8 +157,8 @@ def baseline_spectra_and_compute_fits():
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
-        print(gaussian_fit_results)
-        print("")
+        vprint(gaussian_fit_results)
+        vprint("")
         hcn_linefits[i] = gaussian_fit_results
         hcn_linefits[i]['freq'] = line_freq 
         hcn_linefits[i]['Molecule'] = 'HCN'
@@ -169,7 +174,7 @@ def baseline_spectra_and_compute_fits():
         line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
-        print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
+        vprint(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
         if band == "None":
             continue
         if i not in hcn_linefits.keys():
@@ -188,8 +193,8 @@ def baseline_spectra_and_compute_fits():
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
-        print(gaussian_fit_results)
-        print("")
+        vprint(gaussian_fit_results)
+        vprint("")
         h13cn_linefits[i] = gaussian_fit_results
         h13cn_linefits[i]['freq'] = line_freq 
         h13cn_linefits[i]['Molecule'] = 'H13CN'
@@ -205,7 +210,7 @@ def baseline_spectra_and_compute_fits():
         line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
-        print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
+        vprint(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
         if band == "None":
             continue
         if i not in hcn_linefits.keys():
@@ -236,11 +241,12 @@ def baseline_spectra_and_compute_fits():
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
         if n_lines == 2:
-            print(str(raw_gaussian_result, 'utf-8'), str(raw_gaussian_error, 'utf-8'))
-            pdb.set_trace()         
+            vprint(str(raw_gaussian_result, 'utf-8'), str(raw_gaussian_error, 'utf-8'))
+            if verbose:
+                pdb.set_trace()
 
-        print(gaussian_fit_results)
-        print("")
+        vprint(gaussian_fit_results)
+        vprint("")
         hc15n_linefits[i] = gaussian_fit_results
         hc15n_linefits[i]['freq'] = line_freq 
         hc15n_linefits[i]['Molecule'] = 'HC15N'
@@ -439,7 +445,7 @@ if __name__ == "__main__":
 
     if True:
 
-        fit_tuple = baseline_spectra_and_compute_fits()
+        fit_tuple = baseline_spectra_and_compute_fits(verbose=True)
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_hcn_lines.pdf"
