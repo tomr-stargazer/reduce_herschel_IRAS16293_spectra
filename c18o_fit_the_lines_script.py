@@ -172,7 +172,12 @@ def make_c17o_all_lines_fig():
     return fig
 
 
-def co_baseline_spectra_and_compute_fits():
+def co_baseline_spectra_and_compute_fits(verbose=False):
+
+    def vprint(*args):
+        if verbose:
+            print(*args)
+
     # ok so the REAL loop is gonna look like this:
     c18o_linefits = OrderedDict()
 
@@ -182,7 +187,7 @@ def co_baseline_spectra_and_compute_fits():
         line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
-        print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
+        vprint(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
         if band == "None":
             continue
 
@@ -195,8 +200,8 @@ def co_baseline_spectra_and_compute_fits():
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
-        print(gaussian_fit_results)
-        print("")
+        vprint(gaussian_fit_results)
+        vprint("")
         c18o_linefits[i] = gaussian_fit_results
         c18o_linefits[i]['freq'] = line_freq 
         c18o_linefits[i]['Molecule'] = 'C18O'
@@ -211,7 +216,7 @@ def co_baseline_spectra_and_compute_fits():
         line_name = "J={0}-{1}".format(Ju, Ju-1)
 
         band = which_hifi_band(line_freq)
-        print(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
+        vprint(line_name+" ({0:.3f} GHz): Band ".format(line_freq)+which_hifi_band(line_freq))
         if band == "None":
             continue
         if i not in c18o_linefits.keys():
@@ -233,11 +238,12 @@ def co_baseline_spectra_and_compute_fits():
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
         if n_lines == 2:
-            print(str(raw_gaussian_result, 'utf-8'), str(raw_gaussian_error, 'utf-8'))
-            pdb.set_trace() 
+            vprint(str(raw_gaussian_result, 'utf-8'), str(raw_gaussian_error, 'utf-8'))
+            if verbose:
+                pdb.set_trace() 
 
-        print(gaussian_fit_results)
-        print("")
+        vprint(gaussian_fit_results)
+        vprint("")
         c17o_linefits[i] = gaussian_fit_results
         c17o_linefits[i]['freq'] = line_freq 
         c17o_linefits[i]['Molecule'] = 'C17O'
@@ -350,7 +356,7 @@ if __name__ == "__main__":
 
     if True:
 
-        fit_tuple = co_baseline_spectra_and_compute_fits()
+        fit_tuple = co_baseline_spectra_and_compute_fits(verbose=True)
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_co_lines.pdf"
