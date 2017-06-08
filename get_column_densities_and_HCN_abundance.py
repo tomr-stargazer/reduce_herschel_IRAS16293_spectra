@@ -75,3 +75,19 @@ def get_N_H2(N_C18O):
     print("N_H2 = {:.3e}".format(N_H2))
 
     return N_H2
+
+
+
+if __name__ == "__main__":
+
+    N_HCN = get_N_HCN()
+
+    N_H2 = get_N_H2(get_N_C18O())
+
+    X_HCN = N_HCN/N_H2
+
+    print("X_HCN = {:.3e}".format(X_HCN))
+
+    HCN_over_Si = X_HCN * (1/2) * 3.16e4
+
+    print("HCN/Si = {:.3e}".format(HCN_over_Si))
