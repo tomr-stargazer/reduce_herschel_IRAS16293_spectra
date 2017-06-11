@@ -9,7 +9,9 @@ import numpy as np
 import astropy.table
 import astropy.units as u
 
-from fit_the_lines_script import plottable_latex_string
+from fit_the_lines_script import plottable_latex_string, which_hifi_band
+from make_derived_line_properties_table import herschel_beamsize_from_freq
+from groundbased_linefits import ground_beamsize_from_freq
 
 def make_linefit_table(fit_tuple):
     """ Takes the output of `baseline_spectra_and_compute_fits`, returns a table """
@@ -38,20 +40,22 @@ def turn_data_row_into_tex_row(table_row):
 
     linestring = plottable_latex_string(table_row['Molecule'], table_row['Ju'])
 
+    band_name = "HIFI "+which_hifi_band(table_row['freq'])
+    beamsize = herschel_beamsize_from_freq(table_row['freq']*u.GHz).to(u.arcsec).value
+
     # species & transition. frequency. telescope. theta main beam. V_0. FWHM. Peak flux. Area.
-    tex_line = r"{0}{1} & freq & band & beamsize & {2:.2f} $\pm$ {3:.2f} & {4:.2f} $\pm$ {5:.2f} & {6:.3f} & {7:.2f} $\pm$ {8:.2f} \\".format(
+    tex_line = r"{0}{1} & {9:.4f} & {10} & {11:.1f} & {2:.2f} $\pm$ {3:.2f} & {4:.2f} $\pm$ {5:.2f} & {6:.3f} & {7:.2f} $\pm$ {8:.2f} \\".format(
         '', linestring, table_row['v_cen'], table_row['e_v_cen'], 
-        table_row['v_fwhm'], table_row['e_v_fwhm'], table_row['t_peak'], table_row['area'], table_row['e_area'])
+        table_row['v_fwhm'], table_row['e_v_fwhm'], table_row['t_peak'], table_row['area'], table_row['e_area'], table_row['freq'], band_name, beamsize)
 
     return tex_line
 
 
-def prepare_linefit_table_for_latex(hcn_meta_table):
+def prepare_linefit_table_for_latex(meta_table):
 
-    list_of_latex_lines = [turn_data_row_into_tex_row(row) for row in hcn_meta_table]
+    list_of_latex_lines = [turn_data_row_into_tex_row(row) for row in meta_table]
 
     return list_of_latex_lines
-
 
 
 def make_co_linefit_table(fit_tuple):
@@ -70,3 +74,20 @@ def make_co_linefit_table(fit_tuple):
 
     return co_meta_table
 
+
+def turn_enhanced_ground_row_into_tex_row(table_row):
+
+    linestring = plottable_latex_string(table_row['Molecule'], table_row['Ju'])
+
+    if table_row['Frequency'] < 300 * u.GHz:
+        band_name = "IRAM-30m"
+    elif table_row['Frequency'] > 300 * u.GHz:
+        band_name = "JCMT 15m"
+    beamsize = ground_beamsize_from_freq(table_row['Frequency']).to(u.arcsec).value
+
+    # species & transition. frequency. telescope. theta main beam. V_0. FWHM. Peak flux. Area.
+    tex_line = r"{0}{1} & {9:.4f} & {10} & {11:.1f} & {2:.2f} $\pm$ {3:.2f} & {4:.2f} $\pm$ {5:.2f} & {6:.3f} & {7:.2f} $\pm$ {8:.2f} \\".format(
+        '', linestring, table_row['Vo'].value, table_row['δVo'].value, 
+        table_row['FWHM'].value, table_row['δFWHM'].value, table_row['Int'].value, table_row['Flux'].value, table_row['δFlux'].value, table_row['Frequency'].to(u.GHz).value, band_name, beamsize)
+
+    return tex_line
