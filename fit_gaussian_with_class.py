@@ -17,7 +17,7 @@ fit_results_path = os.path.join(root_directory_of_data, "Fit_results")
 
 def fit_line_and_return_raw_output(
     filename = "3b-averaged.hifi", freq=863071, n_lines=1,
-    line_params = "0 0 0 3.5 0 7", custom_window="-5 15", smooth_gauss=None,
+    line_params = "0 0 0 3.5 0 7", custom_window="-5 15", smooth_gauss=None, smooth_channels=None,
     save=False, path=fit_results_path, output_file_root=None):
 
     # fits write fitswrite_test_result.fits /mode spectrum
@@ -52,9 +52,14 @@ def fit_line_and_return_raw_output(
         save_script_snippet = ""
 
     if smooth_gauss is not None:
-        smooth_snippet = "smooth gauss {0}\n".format(smooth_gauss)
+        smooth_snippet_g = "smooth gauss {0}\n".format(smooth_gauss)
     else:
-        smooth_snippet = ""
+        smooth_snippet_g = ""
+
+    if smooth_channels is not None and smooth_channels > 1.5:
+        smooth_snippet_c = "smooth box {0}\n".format(smooth_channels)        
+    else:
+        smooth_snippet_c = ""
 
     original_directory = os.getcwd()
 
@@ -73,6 +78,7 @@ def fit_line_and_return_raw_output(
             "set win {5}\n"
             "base\n"
             "{4}"
+            "{7}"
             "method gauss\n"
             "lines {6:d} \"{2}\"\n" 
             "mini\n"
@@ -80,7 +86,7 @@ def fit_line_and_return_raw_output(
             "sic\\examine R%HEAD%GAU%RESULT\n"
             "sic\\examine R%HEAD%GAU%ERROR\n"
             "exit\n".format(
-                filename, freq, line_params, save_script_snippet, smooth_snippet, custom_window, n_lines))
+                filename, freq, line_params, save_script_snippet, smooth_snippet_g, custom_window, n_lines, smooth_snippet_c))
 
         script_base_filename = 'linefit'
         path_to_script_with_filename = os.path.join(os.curdir, script_base_filename+".class")
