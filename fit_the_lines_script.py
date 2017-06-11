@@ -90,7 +90,7 @@ def baseline_and_fit_HCN_lines():
         line_filename = band+"-averaged.hifi"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62,
+            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62, smooth_channels=2*line_freq/hcn_line_freqs[0],
             save=True, output_file_root="HCN"+line_name)
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
@@ -152,7 +152,7 @@ def baseline_spectra_and_compute_fits(verbose=False):
         line_filename = band+"-averaged.hifi"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62,
+            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62, smooth_channels=3*line_freq/hcn_line_freqs[0],
             save=True, output_file_root=make_linestring("HCN", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
@@ -189,7 +189,7 @@ def baseline_spectra_and_compute_fits(verbose=False):
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string,
-            smooth_gauss=0.62, save=True, output_file_root=make_linestring("H13CN", Ju))
+            smooth_gauss=0.62, smooth_channels=3*line_freq/hcn_line_freqs[0], save=True, output_file_root=make_linestring("H13CN", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
@@ -236,7 +236,7 @@ def baseline_spectra_and_compute_fits(verbose=False):
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, custom_window=custom_window,
-            smooth_gauss=0.62, save=True, output_file_root=make_linestring("HC15N", Ju))
+            smooth_gauss=0.62, smooth_channels=3*line_freq/hcn_line_freqs[0], save=True, output_file_root=make_linestring("HC15N", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
@@ -320,6 +320,9 @@ def plottable_latex_string(plain_molecule_name, Ju):
     latex_molname_dict['HCN'] = 'HCN'
     latex_molname_dict['H13CN'] = r'H$^{13}$CN'
     latex_molname_dict['HC15N'] = r'HC$^{15}$N'
+    latex_molname_dict['CO'] = 'CO'
+    latex_molname_dict['C18O'] = r'C$^{18}$O'
+    latex_molname_dict['C17O'] = r'C$^{17}$O'
 
     transition_name = "J$={0}-{1}$".format(Ju, Ju-1)
 
@@ -357,7 +360,7 @@ def make_hcn_h13cn_hc15n_figure():
         spectrum_tuple = load_a_spectrum(spectrum_fname)
         result_tuple = load_a_spectrum(result_fname)
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=1, drawstyle='steps-mid')
+        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
         ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
 
         ax.set_xlim(-30, 30)
@@ -382,7 +385,7 @@ def make_hcn_h13cn_hc15n_figure():
         spectrum_tuple = load_a_spectrum(spectrum_fname)
         result_tuple = load_a_spectrum(result_fname)
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=1, drawstyle='steps-mid')
+        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
         ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
 
         ax.set_xlim(-30, 30)
@@ -407,7 +410,7 @@ def make_hcn_h13cn_hc15n_figure():
         spectrum_tuple = load_a_spectrum(spectrum_fname)
         result_tuple = load_a_spectrum(result_fname)
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=1, drawstyle='steps-mid')
+        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
         ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
 
         ax.set_xlim(-30, 30)

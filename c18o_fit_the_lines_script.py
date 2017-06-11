@@ -16,7 +16,7 @@ import astropy.units as u
 from fit_gaussian_with_class import fit_line_and_return_raw_output, extract_line_params_from_raw_output
 from read_in_fits_spectrum_from_class import load_a_spectrum
 from c18o_line_frequencies_and_names import *
-from fit_the_lines_script import make_linestring, parse_linestring
+from fit_the_lines_script import make_linestring, parse_linestring, plottable_latex_string
 
 # currently unused.
 class EmissionLine:
@@ -194,7 +194,7 @@ def co_baseline_spectra_and_compute_fits(verbose=False):
         line_filename = band+"-averaged.hifi"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
-            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62,
+            filename=line_filename, freq=line_freq*1000, smooth_gauss=0.62, smooth_channels=3*line_freq/c18o_line_freqs[0],
             save=True, output_file_root=make_linestring("C18O", Ju))
 
 
@@ -233,7 +233,7 @@ def co_baseline_spectra_and_compute_fits(verbose=False):
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, 
-            smooth_gauss=0.62, save=True, output_file_root=make_linestring("C17O", Ju))
+            smooth_gauss=0.62, smooth_channels=3*line_freq/c18o_line_freqs[0], save=True, output_file_root=make_linestring("C17O", Ju))
 
         gaussian_fit_results = extract_line_params_from_raw_output(raw_gaussian_result)
 
@@ -251,19 +251,6 @@ def co_baseline_spectra_and_compute_fits(verbose=False):
 
 
     return c18o_linefits, c17o_linefits
-
-
-def plottable_latex_string(plain_molecule_name, Ju):
-    """ Assumes the molecule name is simple like HCN or H13CN """
-    latex_molname_dict = {}
-    latex_molname_dict['CO'] = 'CO'
-    latex_molname_dict['C18O'] = r'C$^{18}$O'
-    latex_molname_dict['C17O'] = r'C$^{17}$O'
-
-    transition_name = "J$={0}-{1}$".format(Ju, Ju-1)
-
-    plot_string = "{0}  {1}".format(latex_molname_dict[plain_molecule_name], transition_name)
-    return plot_string
 
 
 def make_c18o_c17o_figure():
