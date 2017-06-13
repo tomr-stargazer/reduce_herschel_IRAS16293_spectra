@@ -253,86 +253,78 @@ def co_baseline_spectra_and_compute_fits(verbose=False):
     return c18o_linefits, c17o_linefits
 
 
-def make_c18o_c17o_figure():
+def make_c18o_c17o_figure(fit_tuple=None):
     fit_results_path = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/Fit_results")
 
     list_of_files_18 = glob.glob(fit_results_path+"/C18O*.fits")
-    list_of_spectra_18 = [x for x in list_of_files_18 if 'spectrum.fits' in x]
-    list_of_results_18 = [x for x in list_of_files_18 if 'result.fits' in x]
-
     list_of_files_17 = glob.glob(fit_results_path+"/C17O*.fits")
-    list_of_spectra_17 = [x for x in list_of_files_17 if 'spectrum.fits' in x]
-    list_of_results_17 = [x for x in list_of_files_17 if 'result.fits' in x]
 
     fig = plt.figure(figsize=(8.6*1.2, 4.8*0.75))
 
-    text_params = dict(fontsize=11, family='serif', bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+    text_params = dict(fontsize=11, family='serif', bbox={'facecolor':'white', 'alpha':0.6, 'edgecolor':'none'})
 
-    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_18, list_of_results_18)):
+    file_list_list = [list_of_files_18, list_of_files_17]
 
-        if i > 5:
-            break
+    ylims = [(-0.25, 2), (-0.25, 0.75)]
+    text_heights = [1.5, 0.6]
 
-        ax = fig.add_subplot(2,6,i+1)
-        ax.tick_params(axis='both', labelsize=7)
+    for j, file_list in enumerate(file_list_list):
 
-        spectrum_tuple = load_a_spectrum(spectrum_fname)
-        result_tuple = load_a_spectrum(result_fname)
+        spectra_list = [x for x in file_list if 'spectrum.fits' in x]
+        results_list = [x for x in file_list if 'result.fits' in x]
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
-        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+        for i, (spectrum_fname, result_fname) in enumerate(zip(spectra_list, results_list)):
 
-        ax.set_xlim(-12, 18)
-        ax.set_ylim(-0.25, 2)
+    # for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_18, list_of_results_18)):
 
-        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
-        plottable_string = plottable_latex_string(mol_name, Ju)
-        ax.text(-10, 1.5, plottable_string, text_params)
+            if i > 5:
+                break
 
-        ax.tick_params(axis='x', labelbottom='off')
-        if i>0:
-            ax.tick_params(axis='y', labelleft='off')
+            ax = fig.add_subplot(2,6,i+1+6*j)
+            ax.tick_params(axis='both', labelsize=7)
 
-    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_17, list_of_results_17)):
+            spectrum_tuple = load_a_spectrum(spectrum_fname)
+            result_tuple = load_a_spectrum(result_fname)
+            mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
 
-        if i > 5:
-            break
+            ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
+            result_linestyle = 'r-'
 
-        ax = fig.add_subplot(2,6,i+7)
-        ax.tick_params(axis='both', labelsize=7)
+            if fit_tuple is not None:
+                # retrieve the relevant fit dict from fit_tuple
+                this_fit = [x for x in fit_tuple[j].values() if x['Molecule'] == mol_name and x['Ju'] == Ju][0]
+                if this_fit['n_lines'] == 2:
 
-        spectrum_tuple = load_a_spectrum(spectrum_fname)
-        result_tuple = load_a_spectrum(result_fname)
+                    result_linestyle = 'C0--'
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
-        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+                    # plot the individual line fits
+                    xs = np.arange(-30, 30, 0.1)
+                    a = this_fit['t_peak'] 
+                    b = this_fit['v_cen'] 
+                    c = this_fit['v_fwhm'] / 2.35482 
+                    ys = a * np.exp( - (xs-b)**2 / (2*c**2))
 
-        ax.set_xlim(-12, 18)
-        ax.set_ylim(-0.25, 0.75)
+                    ax.plot(xs, ys, 'r', lw=0.75)
 
-        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
-        plottable_string = plottable_latex_string(mol_name, Ju)
-        ax.text(-10, 0.6, plottable_string, text_params)
+                    a2 = this_fit['t_peak_2'] 
+                    b2 = this_fit['v_cen_2'] 
+                    c2 = this_fit['v_fwhm_2'] / 2.35482 
+                    ys2 = a2 * np.exp( - (xs-b2)**2 / (2*c2**2))
 
-        # this is to plot the blue partial component of the blended c17o 7-6 / h2co 11_0,1 - 10_0,10 fit (very tacked-on)
-        if i==2:
-            xs = np.arange(-30, 30, 0.1)
-            a = 0.23865852085409806
-            b = 3.77
-            c = 3.56 / 2.35482
-            ys = a * np.exp( - (xs-b)**2 / (2*c**2))
+                    ax.plot(xs, ys2, 'C2', lw=0.75)                       
 
-            ax.plot(xs, ys, 'C0', lw=1)
+            ax.plot(result_tuple[2], result_tuple[0], result_linestyle, lw=0.75)
 
-            a2 = 0.16037
-            b2 = 2.250
-            c2 = 6.228 / 2.35482
-            ys2 = a2 * np.exp( - (xs-b2)**2 / (2*c2**2))
+            ax.set_xlim(-12, 18)
+            ax.set_ylim(ylims[j])
 
-            ax.plot(xs, ys2, 'C1', lw=1)
+            plottable_string = plottable_latex_string(mol_name, Ju)
+            ax.text(-10, text_heights[j], plottable_string, **text_params)
 
-        if i>0:
-            ax.tick_params(axis='y', labelleft='off')        
+            if j!=1:
+                ax.tick_params(axis='x', labelbottom='off')
+            if i>0:
+                ax.tick_params(axis='y', labelleft='off')
 
     plt.tight_layout(w_pad=0.5, h_pad=0.3)
     plt.show()
@@ -343,11 +335,11 @@ if __name__ == "__main__":
 
     if True:
 
-        co_fit_tuple = co_baseline_spectra_and_compute_fits(verbose=True)
+        co_fit_tuple = co_baseline_spectra_and_compute_fits(verbose=False)
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_co_lines.pdf"
         fig_fullpath = os.path.join(paper_path, fig_filename)
 
-        fig = make_c18o_c17o_figure()
+        fig = make_c18o_c17o_figure(co_fit_tuple)
         fig.savefig(fig_fullpath, bbox_inches='tight')
