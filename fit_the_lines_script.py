@@ -339,7 +339,7 @@ def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
 
     fig = plt.figure(figsize=(8.6, 4.8))
 
-    text_params = dict(fontsize=11, family='serif', bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
+    text_params = dict(fontsize=11, family='serif', bbox={'facecolor':'white', 'alpha':0.6, 'edgecolor':'none'})
 
     file_list_list = [list_of_files, list_of_files_13, list_of_files_15]
 
@@ -364,15 +364,14 @@ def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
             mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
 
             ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
-            result_linecolor = 'r'
+            result_linestyle = 'r-'
 
             if fit_tuple is not None:
                 # retrieve the relevant fit dict from fit_tuple
                 this_fit = [x for x in fit_tuple[j].values() if x['Molecule'] == mol_name and x['Ju'] == Ju][0]
                 if this_fit['n_lines'] == 2:
-                    pdb.set_trace()
 
-                    result_linecolor = 'C0'
+                    result_linestyle = 'C0--'
 
                     # plot the individual line fits
                     xs = np.arange(-30, 30, 0.1)
@@ -381,22 +380,22 @@ def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
                     c = this_fit['v_fwhm'] / 2.35482 # 6.45 / 2.35482
                     ys = a * np.exp( - (xs-b)**2 / (2*c**2))
 
-                    ax.plot(xs, ys, 'r', lw=1)
+                    ax.plot(xs, ys, 'r', lw=0.75)
 
                     a2 = this_fit['t_peak_2'] # 0.35102
                     b2 = this_fit['v_cen_2'] # -4.813
                     c2 = this_fit['v_fwhm_2'] / 2.35482 # 6.062 / 2.35482
                     ys2 = a2 * np.exp( - (xs-b2)**2 / (2*c2**2))
 
-                    ax.plot(xs, ys2, 'C2', lw=1)                    
+                    ax.plot(xs, ys2, 'C2', lw=0.75)                    
 
-            ax.plot(result_tuple[2], result_tuple[0], result_linecolor, lw=0.75)
+            ax.plot(result_tuple[2], result_tuple[0], result_linestyle, lw=0.75)
 
             ax.set_xlim(-30, 30)
             ax.set_ylim(ylims[j])
 
             plottable_string = plottable_latex_string(mol_name, Ju)
-            ax.text(-25, text_heights[j], plottable_string, text_params)
+            ax.text(-25, text_heights[j], plottable_string, **text_params)
 
             if j!=2:
                 ax.tick_params(axis='x', labelbottom='off')
