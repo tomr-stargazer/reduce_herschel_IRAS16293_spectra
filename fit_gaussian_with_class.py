@@ -107,11 +107,11 @@ def fit_line_and_return_raw_output(
     return output, error
 
 
-def result_lines_to_list(list_of_str):
+def values_list_from_result_lines(list_of_str):
     """ Turns 3 lines of numerical output into a list of 15 values. """
 
     if len(list_of_str) != 3:
-        raise ValueError("`result_lines_to_list` takes a list of 3 strings, not {0}.".format(len(list_of_str)))
+        raise ValueError("`values_list_from_result_lines` takes a list of 3 strings, not {0}.".format(len(list_of_str)))
 
     joined_lines = reduce(lambda x,y: "".join([x,y]), list_of_str)
     values = [float(x) for x in joined_lines.split()]
