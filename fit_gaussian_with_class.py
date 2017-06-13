@@ -9,6 +9,7 @@ I wanna be able to take some data and fit
 import os
 import subprocess
 from collections import OrderedDict
+from functools import reduce
 import numpy as np
 
 root_directory_of_data = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/")
@@ -106,6 +107,18 @@ def fit_line_and_return_raw_output(
     return output, error
 
 
+def result_lines_to_list(list_of_str):
+    """ Turns 3 lines of numerical output into a list of 15 values. """
+
+    if len(list_of_str) != 3:
+        raise ValueError("`result_lines_to_list` takes a list of 3 strings, not {0}.".format(len(list_of_str)))
+
+    joined_lines = reduce(lambda x,y: "".join([x,y]), list_of_str)
+    values = [float(x) for x in joined_lines.split()]
+
+    return values
+
+
 def extract_line_params_from_raw_output(raw_output):
     """ Will depend on the specifics of what we're passing to class. """
 
@@ -139,7 +152,7 @@ if __name__ == '__main__':
     freq=863071
     line_params = "0 0 0 3.5 0 7"
 
-    output, error = fit_line_and_return_raw_output(filename, freq, line_params)
+    output, error = fit_line_and_return_raw_output(filename=filename, freq=freq, line_params=line_params)
     results = extract_line_params_from_raw_output(output)
 
     print(results)
