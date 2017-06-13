@@ -36,3 +36,18 @@ def test_n_lines_from_values_list():
 
     # assert
     assert n_lines == expected_n_lines
+
+
+def test2_n_lines_from_values_list():
+
+    # arrange
+    values_list = [0., 3., 12., 1., 0.,
+                   2., 0., 0., 0., 0., 
+                   0., 0., 0., 0., 1.]
+    expected_n_lines = 2
+
+    # act
+    n_lines = n_lines_from_values_list(values_list)
+
+    # assert
+    assert n_lines == expected_n_lines
