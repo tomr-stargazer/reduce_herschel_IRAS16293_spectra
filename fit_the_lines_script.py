@@ -330,95 +330,124 @@ def plottable_latex_string(plain_molecule_name, Ju):
     return plot_string
 
 
-def make_hcn_h13cn_hc15n_figure():
+def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
     fit_results_path = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/Fit_results")
 
     list_of_files = glob.glob(fit_results_path+"/HCN*.fits")
-    list_of_spectra = [x for x in list_of_files if 'spectrum.fits' in x]
-    list_of_results = [x for x in list_of_files if 'result.fits' in x]
-
     list_of_files_13 = glob.glob(fit_results_path+"/H13CN*.fits")
-    list_of_spectra_13 = [x for x in list_of_files_13 if 'spectrum.fits' in x]
-    list_of_results_13 = [x for x in list_of_files_13 if 'result.fits' in x]
-
     list_of_files_15 = glob.glob(fit_results_path+"/HC15N*.fits")
-    list_of_spectra_15 = [x for x in list_of_files_15 if 'spectrum.fits' in x]
-    list_of_results_15 = [x for x in list_of_files_15 if 'result.fits' in x]
 
     fig = plt.figure(figsize=(8.6, 4.8))
 
     text_params = dict(fontsize=11, family='serif', bbox={'facecolor':'white', 'alpha':0.5, 'edgecolor':'none'})
 
-    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra, list_of_results)):
+    file_list_list = [list_of_files, list_of_files_13, list_of_files_15]
 
-        if i > 4:
-            break
+    ylims = [(-0.1, 1), (-0.09, 0.15), (-0.05, 0.1)]
+    text_heights = [0.8, 0.11, 0.07]
 
-        ax = fig.add_subplot(3,5,i+1)
-        ax.tick_params(axis='both', labelsize=7)
+    for j, file_list in enumerate(file_list_list):
 
-        spectrum_tuple = load_a_spectrum(spectrum_fname)
-        result_tuple = load_a_spectrum(result_fname)
+        spectra_list = [x for x in file_list if 'spectrum.fits' in x]
+        results_list = [x for x in file_list if 'result.fits' in x]
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
-        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+        for i, (spectrum_fname, result_fname) in enumerate(zip(spectra_list, results_list)):
 
-        ax.set_xlim(-30, 30)
-        ax.set_ylim(-0.1, 1)
+            if i > 4:
+                break
 
-        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
-        plottable_string = plottable_latex_string(mol_name, Ju)
-        ax.text(-25, 0.8, plottable_string, text_params)
+            ax = fig.add_subplot(3,5,i+1+5*j)
+            ax.tick_params(axis='both', labelsize=7)
 
-        ax.tick_params(axis='x', labelbottom='off')
-        if i>0:
-            ax.tick_params(axis='y', labelleft='off')
+            spectrum_tuple = load_a_spectrum(spectrum_fname)
+            result_tuple = load_a_spectrum(result_fname)
+            mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
 
-    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_13, list_of_results_13)):
+            ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
+            result_linecolor = 'r'
 
-        if i > 4:
-            break
+            if fit_tuple is not None:
+                # retrieve the relevant fit dict from fit_tuple
+                this_fit = [x for x in fit_tuple[j].values() if x['Molecule'] == mol_name and x['Ju'] == Ju][0]
+                if this_fit['n_lines'] == 2:
+                    pdb.set_trace()
 
-        ax = fig.add_subplot(3,5,i+6)
-        ax.tick_params(axis='both', labelsize=7)
+                    result_linecolor = 'C0'
 
-        spectrum_tuple = load_a_spectrum(spectrum_fname)
-        result_tuple = load_a_spectrum(result_fname)
+                    # plot the individual line fits
+                    xs = np.arange(-30, 30, 0.1)
+                    a = this_fit['t_peak'] # 0.03666304656927235
+                    b = this_fit['v_cen'] # 3.67
+                    c = this_fit['v_fwhm'] / 2.35482 # 6.45 / 2.35482
+                    ys = a * np.exp( - (xs-b)**2 / (2*c**2))
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
-        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+                    ax.plot(xs, ys, 'r', lw=1)
 
-        ax.set_xlim(-30, 30)
-        ax.set_ylim(-0.09, 0.15)
+                    a2 = this_fit['t_peak_2'] # 0.35102
+                    b2 = this_fit['v_cen_2'] # -4.813
+                    c2 = this_fit['v_fwhm_2'] / 2.35482 # 6.062 / 2.35482
+                    ys2 = a2 * np.exp( - (xs-b2)**2 / (2*c2**2))
 
-        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
-        plottable_string = plottable_latex_string(mol_name, Ju)
-        ax.text(-25, 0.11, plottable_string, text_params)
+                    ax.plot(xs, ys2, 'C2', lw=1)                    
 
-        ax.tick_params(axis='x', labelbottom='off')
-        if i>0:
-            ax.tick_params(axis='y', labelleft='off')        
+            ax.plot(result_tuple[2], result_tuple[0], result_linecolor, lw=0.75)
 
-    for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_15, list_of_results_15)):
+            ax.set_xlim(-30, 30)
+            ax.set_ylim(ylims[j])
 
-        if i > 4:
-            break
+            plottable_string = plottable_latex_string(mol_name, Ju)
+            ax.text(-25, text_heights[j], plottable_string, text_params)
 
-        ax = fig.add_subplot(3,5,i+11)
-        ax.tick_params(axis='both', labelsize=7)
+            if j!=2:
+                ax.tick_params(axis='x', labelbottom='off')
+            if i>0:
+                ax.tick_params(axis='y', labelleft='off')
 
-        spectrum_tuple = load_a_spectrum(spectrum_fname)
-        result_tuple = load_a_spectrum(result_fname)
+    # for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_13, list_of_results_13)):
 
-        ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
-        ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+    #     if i > 4:
+    #         break
 
-        ax.set_xlim(-30, 30)
-        ax.set_ylim(-0.05, 0.1)
+    #     ax = fig.add_subplot(3,5,i+6)
+    #     ax.tick_params(axis='both', labelsize=7)
 
-        mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
-        plottable_string = plottable_latex_string(mol_name, Ju)
-        ax.text(-25, 0.07, plottable_string, text_params)
+    #     spectrum_tuple = load_a_spectrum(spectrum_fname)
+    #     result_tuple = load_a_spectrum(result_fname)
+
+    #     ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
+    #     ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+
+    #     ax.set_xlim(-30, 30)
+    #     ax.set_ylim(-0.09, 0.15)
+
+    #     mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
+    #     plottable_string = plottable_latex_string(mol_name, Ju)
+    #     ax.text(-25, 0.11, plottable_string, text_params)
+
+    #     ax.tick_params(axis='x', labelbottom='off')
+    #     if i>0:
+    #         ax.tick_params(axis='y', labelleft='off')        
+
+    # for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_15, list_of_results_15)):
+
+    #     if i > 4:
+    #         break
+
+    #     ax = fig.add_subplot(3,5,i+11)
+    #     ax.tick_params(axis='both', labelsize=7)
+
+    #     spectrum_tuple = load_a_spectrum(spectrum_fname)
+    #     result_tuple = load_a_spectrum(result_fname)
+
+    #     ax.plot(spectrum_tuple[2], spectrum_tuple[0], 'k', lw=0.75, drawstyle='steps-mid')
+    #     ax.plot(result_tuple[2], result_tuple[0], 'r', lw=0.75)
+
+    #     ax.set_xlim(-30, 30)
+    #     ax.set_ylim(-0.05, 0.1)
+
+    #     mol_name, Ju = parse_linestring(spectrum_fname.split('/')[-1].rstrip('_spectrum.fits'))
+    #     plottable_string = plottable_latex_string(mol_name, Ju)
+    #     ax.text(-25, 0.07, plottable_string, text_params)
 
         # this is to plot the blue partial component of the blended hc15n 7-6 fit (very tacked-on)
         if i==1:
@@ -448,11 +477,11 @@ if __name__ == "__main__":
 
     if True:
 
-        fit_tuple = baseline_spectra_and_compute_fits(verbose=True)
+        fit_tuple = baseline_spectra_and_compute_fits(verbose=False)
 
         paper_path = os.path.expanduser("~/Documents/Academia/Articles/Nitrogen_Paper/")
         fig_filename = "in_progress_graphics/hifi_hcn_lines.pdf"
         fig_fullpath = os.path.join(paper_path, fig_filename)
 
-        fig = make_hcn_h13cn_hc15n_figure()
+        fig = make_hcn_h13cn_hc15n_figure(fit_tuple)
         fig.savefig(fig_fullpath, bbox_inches='tight')
