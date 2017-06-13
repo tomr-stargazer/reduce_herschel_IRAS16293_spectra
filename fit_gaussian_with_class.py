@@ -11,6 +11,7 @@ import subprocess
 from collections import OrderedDict
 from functools import reduce
 import numpy as np
+import pdb
 
 root_directory_of_data = os.path.expanduser("~/Documents/Data/Herschel_Science_Archive/IRAS16293/")
 data_location = os.path.join(root_directory_of_data, "Partially_Reduced_Spectra")
@@ -138,24 +139,42 @@ def extract_line_params_from_raw_output(raw_output):
 
     output_lines = raw_output.decode('utf-8').split('\n')
 
-    # This may change if we add anything to the end of the CLASS script above!
-    results_line = output_lines[-8]
-    uncertainties_line = output_lines[-4]
+    # # This may change if we add anything to the end of the CLASS script above!
+    # results_line = output_lines[-8]
+    # uncertainties_line = output_lines[-4]
 
-    area, v_cen, v_fwhm, a, b = [float(x) for x in results_line.split()]
-    e_area, e_v_cen, e_v_fwhm, a, b = [float(x) for x in uncertainties_line.split()]
+    # area, v_cen, v_fwhm, a, b = [float(x) for x in results_line.split()]
+    # e_area, e_v_cen, e_v_fwhm, a, b = [float(x) for x in uncertainties_line.split()]
+
+    fit_results = values_list_from_result_lines(output_lines[-8:-5])
+    fit_uncertainties = values_list_from_result_lines(output_lines[-4:-1])
+
+    n_lines = n_lines_from_values_list(fit_results)
+
+    # pdb.set_trace()
 
     results_dict = OrderedDict()
-    results_dict['area'] = area
-    results_dict['e_area'] = e_area
-    results_dict['v_cen'] = v_cen
-    results_dict['e_v_cen'] = e_v_cen
-    results_dict['v_fwhm'] = v_fwhm
-    results_dict['e_v_fwhm'] = e_v_fwhm
+    results_dict['n_lines'] = n_lines
+    results_dict['area'] = fit_results[0]
+    results_dict['e_area'] = fit_uncertainties[0]
+    results_dict['v_cen'] = fit_results[1]
+    results_dict['e_v_cen'] = fit_uncertainties[1]
+    results_dict['v_fwhm'] = fit_results[2]
+    results_dict['e_v_fwhm'] = fit_uncertainties[2]
 
-    t_peak = area * 2.35482 / ( (2*np.pi)**(1/2) * v_fwhm)
-
+    t_peak = results_dict['area'] * 2.35482 / ( (2*np.pi)**(1/2) * results_dict['v_fwhm'])
     results_dict['t_peak'] = t_peak
+
+    if n_lines > 1:
+        results_dict['area_2'] = fit_results[3]
+        results_dict['e_area_2'] = fit_uncertainties[3]
+        results_dict['v_cen_2'] = fit_results[4]
+        results_dict['e_v_cen_2'] = fit_uncertainties[4]
+        results_dict['v_fwhm_2'] = fit_results[5]
+        results_dict['e_v_fwhm_2'] = fit_uncertainties[5]
+
+        t_peak_2 = results_dict['area_2'] * 2.35482 / ( (2*np.pi)**(1/2) * results_dict['v_fwhm_2'])
+        results_dict['t_peak_2'] = t_peak_2
 
     return results_dict
 
