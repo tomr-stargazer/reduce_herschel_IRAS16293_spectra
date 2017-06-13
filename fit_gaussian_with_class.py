@@ -119,6 +119,20 @@ def values_list_from_result_lines(list_of_str):
     return values
 
 
+def n_lines_from_values_list(values_list): 
+
+    if len(values_list) != 15:
+        raise ValueError("Expecting a list of length 15, not {0}".format(len(values_list)))
+
+    for i in range(15//3):
+
+        if (values_list[0+3*i]==0) and (values_list[1+3*i]==0) and (values_list[2+3*i]==0):
+            # i is zero-indexed, 
+            # and we want to return one less than the number we just checked, 
+            # so this functions as `return (i-1) + 1`
+            return i
+
+
 def extract_line_params_from_raw_output(raw_output):
     """ Will depend on the specifics of what we're passing to class. """
 
