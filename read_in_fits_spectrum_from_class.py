@@ -17,7 +17,7 @@ def load_a_spectrum(filename):
         raise ValueError("This only accepts FITS spectra written in `/mode SPECTRUM`, not `/mode INDEX`.")
 
     central_freq = header['RESTFREQ']
-    reference_pixel = header['CRPIX1']
+    reference_pixel = header['CRPIX1'] - 1 # apparently FITS is 1-indexed (added the -1 after trial and error)
     delta_freq = header['CDELT1']
     delta_v = header['DELTAV']
 
