@@ -401,6 +401,9 @@ def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
                 ax.tick_params(axis='x', labelbottom='off')
             if i>0:
                 ax.tick_params(axis='y', labelleft='off')
+            if i==0 and j==2:
+                ax.set_xlabel(r"$V_{\rm{lsr}}$ (km s$^{-1}$)", fontsize=8)
+                ax.set_ylabel(r"$T_{\rm{mb}}$ (K)", fontsize=8)
 
     plt.tight_layout(w_pad=0.5, h_pad=0.3)
     plt.show()
