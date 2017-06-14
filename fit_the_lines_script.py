@@ -343,8 +343,8 @@ def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
 
     file_list_list = [list_of_files, list_of_files_13, list_of_files_15]
 
-    ylims = [(-0.1, 1), (-0.09, 0.15), (-0.05, 0.1)]
-    text_heights = [0.8, 0.11, 0.07]
+    ylims = [(-0.1, 1), (-0.05, 0.12), (-0.04, 0.08)]
+    text_heights = [0.8, 0.09, 0.06]
 
     for j, file_list in enumerate(file_list_list):
 
