@@ -265,8 +265,8 @@ def make_c18o_c17o_figure(fit_tuple=None):
 
     file_list_list = [list_of_files_18, list_of_files_17]
 
-    ylims = [(-0.25, 2), (-0.25, 0.75)]
-    text_heights = [1.5, 0.6]
+    ylims = [(-0.15, 2), (-0.15, 0.65)]
+    text_heights = [1.65, 0.525]
 
     for j, file_list in enumerate(file_list_list):
 
@@ -274,8 +274,6 @@ def make_c18o_c17o_figure(fit_tuple=None):
         results_list = [x for x in file_list if 'result.fits' in x]
 
         for i, (spectrum_fname, result_fname) in enumerate(zip(spectra_list, results_list)):
-
-    # for i, (spectrum_fname, result_fname) in enumerate(zip(list_of_spectra_18, list_of_results_18)):
 
             if i > 5:
                 break
@@ -325,6 +323,9 @@ def make_c18o_c17o_figure(fit_tuple=None):
                 ax.tick_params(axis='x', labelbottom='off')
             if i>0:
                 ax.tick_params(axis='y', labelleft='off')
+            if i==0 and j==1:
+                ax.set_xlabel(r"$V_{\rm{lsr}}$ (km s$^{-1}$)", fontsize=8)
+                ax.set_ylabel(r"$T_{\rm{mb}}$ (K)", fontsize=8)
 
     plt.tight_layout(w_pad=0.5, h_pad=0.3)
     plt.show()
@@ -333,7 +334,7 @@ def make_c18o_c17o_figure(fit_tuple=None):
 
 if __name__ == "__main__":
 
-    if True:
+    if False:
 
         co_fit_tuple = co_baseline_spectra_and_compute_fits(verbose=False)
 
