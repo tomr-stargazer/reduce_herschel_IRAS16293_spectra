@@ -58,6 +58,34 @@ A_ten9 = 3.1755e-02
 h13cn_Auls = [A_65, A_76, A_87, A_98, A_ten9]
 h13cn_Auls = [x / u.s for x in h13cn_Auls]
 
+# !TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(GHz) + E_u(K)
+#     1     2     1   2.2029e-05      86.0549610      4.13
+#     2     3     2   2.1146e-04     172.1079560     12.39
+#     3     4     3   7.6473e-04     258.1571000     24.78
+#     4     5     4   1.8793e-03     344.2003199     41.30
+#     5     6     5   3.7541e-03     430.2357675     61.95
+#     6     7     6   6.5851e-03     516.2614602     86.72
+#     7     8     7   1.0572e-02     602.2754469    115.63
+#     8     9     8   1.5913e-02     688.2757768    148.66
+#     9    10     9   2.2799e-02     774.2604988    185.82
+#    10    11    10   3.1433e-02     860.2276619    227.10
+#    11    12    11   4.2016e-02     946.1753151    272.51
+
+hc15n_A_10 = 2.2029e-05
+hc15n_A_21 = 2.1146e-04
+hc15n_A_32 = 7.6473e-04
+hc15n_A_43 = 1.8793e-03
+hc15n_A_54 = 3.7541e-03
+hc15n_A_65 = 6.5851e-03
+hc15n_A_76 = 1.0572e-02
+hc15n_A_87 = 1.5913e-02
+hc15n_A_98 = 2.2799e-02
+hc15n_A_ten9 = 3.1433e-02
+
+# hc15n_Auls = [A_10, A_32, A_43, A_65, A_76, A_87, A_98, A_ten9]
+hc15n_Auls = [hc15n_A_65, hc15n_A_76, hc15n_A_87, hc15n_A_98, hc15n_A_ten9]
+hc15n_Auls = [x / u.s for x in hc15n_Auls]
+
 # currently only handles the Herschel data.
 def make_derived_props_table(linefit_table):
 
@@ -72,15 +100,16 @@ def make_derived_props_table(linefit_table):
     theta_source = 1.29*u.arcsec # from ALMA image of h13cn 8-7 emission
     eta_bf = theta_source**2 / (theta_source**2 + herschel_beamsize_from_freq(h13cn_subtable['freq'])**2)
 
-    N_upper_column = iso_Nupper(h13cn_subtable['area'], h13cn_tau, h13cn_Auls, h13cn_subtable['freq'], eta_bf)
+    N_h13cn_upper_column = iso_Nupper(h13cn_subtable['area'], h13cn_tau, h13cn_Auls, h13cn_subtable['freq'], eta_bf)
+    N_hc15n_upper_column = iso_Nupper(hc15n_subtable['area'], hc15n_tau, hc15n_Auls, hc15n_subtable['freq'], eta_bf)
     fractionation_column_ism = isotopic_ratio_from_taus(tau_main(h13cn_tau, 69), hc15n_tau)
     fractionation_column_solar = isotopic_ratio_from_taus(tau_main(h13cn_tau, 89), hc15n_tau)
     fractionation_column_ism[-1] = np.nan
     fractionation_column_solar[-1] = np.nan
 
-    # return N_upper_column
-    new_table = astropy.table.Table([Ju_column, h13cn_tau, N_upper_column, fractionation_column_ism, fractionation_column_solar], 
-                                    names=['J_upper', 'tau_h13cn', "N(h13cn)_upper", "14N/15N ratio (ISM)", "14N/15N ratio (solar)"])
+    # return N_h13cn_upper_column
+    new_table = astropy.table.Table([Ju_column, h13cn_tau, N_h13cn_upper_column, hc15n_tau, N_hc15n_upper_column, fractionation_column_ism, fractionation_column_solar], 
+                                    names=['J_upper', 'tau_h13cn', "N(h13cn)_upper", "tau_hc15n", "N(hc15n)_upper", "14N/15N ratio (ISM)", "14N/15N ratio (solar)"])
 
     return new_table
 
