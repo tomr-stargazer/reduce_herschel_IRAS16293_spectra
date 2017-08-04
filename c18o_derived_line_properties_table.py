@@ -84,7 +84,8 @@ def co_make_derived_props_table(linefit_table):
     Ju_column = c18o_subtable['Ju']
     # skipping taus. assuming it's all optically thin.
     c18o_tau = 0.0001 * np.ones_like(Ju_column)
-    # c18o_tau = tau_iso(c18o_subtable['t_peak'], hcn_subtable['t_peak'])
+    # The following is incorrect because the tau_iso function assumes tau_main >> tau_iso (not true for 17O vs 18O).
+    # c18o_tau = tau_iso(c17o_subtable['t_peak'], c18o_subtable['t_peak'])
 
     theta_source = 15.5*u.arcsec # from SMA image of c18o 2-1 emission, Jørgensen+2011
     eta_bf = theta_source**2 / (theta_source**2 + herschel_beamsize_from_freq(c18o_subtable['freq'])**2)
