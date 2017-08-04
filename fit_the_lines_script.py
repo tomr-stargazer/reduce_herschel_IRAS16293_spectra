@@ -234,7 +234,7 @@ def baseline_spectra_and_compute_fits(verbose=False):
         elif Ju == 9:
             custom_window = "-30 -18 -5 15"
         elif Ju == 10:
-            custom_window = "-5 15 21 36"
+            custom_window = "-5 15 21 43"
 
         raw_gaussian_result, raw_gaussian_error = fit_line_and_return_raw_output(
             filename=line_filename, freq=line_freq*1000, line_params=line_params_string, n_lines=n_lines, custom_window=custom_window,
