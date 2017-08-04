@@ -13,6 +13,32 @@ from fit_the_lines_script import plottable_latex_string, which_hifi_band
 from make_derived_line_properties_table import herschel_beamsize_from_freq
 from groundbased_linefits import ground_beamsize_from_freq
 
+def destructively_preprocess_dict_list(dict_list):
+    """ 
+    The latest version of astropy breaks my dict-table hacks. 
+    So this is a hack around that. 
+
+    """
+
+    allowed_keys = dict_list[0].keys()
+    disallowed_keys = []
+
+    for dict_ in dict_list:
+        for key in dict_.keys():
+            if key not in allowed_keys:
+                disallowed_keys.append(key)
+
+    for key in disallowed_keys:
+        for i in range(len(dict_list)):
+            try:
+                del dict_list[i][key]
+            except KeyError:
+                pass
+
+    # it's in-place destructive, so:
+    return None 
+
+
 def make_linefit_table(fit_tuple):
     """ Takes the output of `baseline_spectra_and_compute_fits`, returns a table """
 
@@ -26,7 +52,9 @@ def make_linefit_table(fit_tuple):
     # h13cn_table['Molecule'] = np.array(['H13CN']*len(h13cn_table))
     h13cn_table_re = h13cn_table[('Molecule', 'Ju', *h13cn_table.colnames[:-2])]
 
-    hc15n_table = astropy.table.Table([x for x in hc15n_fits.values()], names=hc15n_fits[0].keys())
+    hc15n_dict_list = [x for x in hc15n_fits.values()]
+    destructively_preprocess_dict_list(hc15n_dict_list)
+    hc15n_table = astropy.table.Table(hc15n_dict_list, names=hc15n_fits[0].keys())
     # hc15n_table['Molecule'] = np.array(['HC15N']*len(hc15n_table))
     hc15n_table_re = hc15n_table[('Molecule', 'Ju', *hc15n_table.colnames[:-2])]
 
@@ -66,7 +94,9 @@ def make_co_linefit_table(fit_tuple):
     c18o_table = astropy.table.Table([x for x in c18o_fits.values()], names=c18o_fits[0].keys())
     c18o_table_re = c18o_table[('Molecule', 'Ju', *c18o_table.colnames[:-2])]
 
-    c17o_table = astropy.table.Table([x for x in c17o_fits.values()], names=c17o_fits[0].keys())
+    c17o_dict_list = [x for x in c17o_fits.values()]
+    destructively_preprocess_dict_list(c17o_dict_list)
+    c17o_table = astropy.table.Table(c17o_dict_list, names=c17o_fits[0].keys())
     c17o_table_re = c17o_table[('Molecule', 'Ju', *c17o_table.colnames[:-2])]
 
     co_meta_table = astropy.table.vstack([c18o_table_re[:6], c17o_table_re[:6]])
