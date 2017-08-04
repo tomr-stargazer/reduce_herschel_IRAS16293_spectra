@@ -226,7 +226,9 @@ def baseline_spectra_and_compute_fits(verbose=False):
         elif Ju == 7:
             custom_window = "-15 15 20 30"
             n_lines = 2
-            line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 1 0 -4.231 0 5.926".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'])
+            # velocity-space difference between the SO line at 602.292 GHz and the hc15n line at 602.2754 GHz
+            SO_velocity_diff = 8.412 
+            line_params_string = "0 0 1 {0:.2f} 1 {1:.2f}\" \"0 1 1 {2:2f} 0 5.926".format(h13cn_linefits[i]['v_cen'], h13cn_linefits[i]['v_fwhm'], h13cn_linefits[i]['v_cen']-SO_velocity_diff)
         elif Ju == 8:
             custom_window = "-5 15 23 40"
         elif Ju == 9:
