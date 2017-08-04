@@ -391,7 +391,9 @@ def make_hcn_h13cn_hc15n_figure(fit_tuple=None):
 
                     ax.plot(xs, ys2, 'C2', lw=0.75)                    
 
-            ax.plot(result_tuple[2], result_tuple[0], result_linestyle, lw=0.75)
+            # don't plot the non-detection "fit" at hc15n 10-9.
+            if mol_name != 'HC15N' or Ju != 10:
+                ax.plot(result_tuple[2], result_tuple[0], result_linestyle, lw=0.75)
 
             ax.set_xlim(-30, 30)
             ax.set_ylim(ylims[j])
