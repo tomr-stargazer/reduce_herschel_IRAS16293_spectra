@@ -75,7 +75,7 @@ def fit_line_and_return_raw_output(
             "set mode x auto\n"
             "set unit v v\n"
             "mod freq {1}\n" 
-            "set mode x -40 +40\n"
+            "set mode x -35 +35\n"
             "extract -100 100\n"
             "set win {5}\n"
             "base\n"
