@@ -10,6 +10,8 @@ This is a place where the assumed source size will have to come into play!
 
 """
 
+import pdb
+
 import numpy as np
 import astropy.table
 import astropy.units as u
@@ -100,16 +102,35 @@ def make_derived_props_table(linefit_table):
     theta_source = 1.29*u.arcsec # from ALMA image of h13cn 8-7 emission
     eta_bf = theta_source**2 / (theta_source**2 + herschel_beamsize_from_freq(h13cn_subtable['freq'])**2)
 
-    N_h13cn_upper_column = iso_Nupper(h13cn_subtable['area'], h13cn_tau, h13cn_Auls, h13cn_subtable['freq'], eta_bf)
-    N_hc15n_upper_column = iso_Nupper(hc15n_subtable['area'], hc15n_tau, hc15n_Auls, hc15n_subtable['freq'], eta_bf)
+    N_h13cn_upper_column = iso_Nupper(h13cn_subtable['area'], h13cn_tau, 
+                                      h13cn_Auls, h13cn_subtable['freq'], eta_bf)
+    N_hc15n_upper_column = iso_Nupper(hc15n_subtable['area'], hc15n_tau, 
+                                      hc15n_Auls, hc15n_subtable['freq'], eta_bf)
+
+    relative_e_fractionation_column = ((h13cn_subtable['e_area']/h13cn_subtable['area'])**2 +
+                                       (hc15n_subtable['e_area']/hc15n_subtable['area'])**2)**(0.5)
+
     fractionation_column_ism = isotopic_ratio_from_taus(tau_main(h13cn_tau, 69), hc15n_tau)
+    e_fractionation_column_ism = relative_e_fractionation_column * fractionation_column_ism
     fractionation_column_solar = isotopic_ratio_from_taus(tau_main(h13cn_tau, 89), hc15n_tau)
+    e_fractionation_column_solar = relative_e_fractionation_column * fractionation_column_solar
     fractionation_column_ism[-1] = np.nan
     fractionation_column_solar[-1] = np.nan
 
+    pdb.set_trace()
+
+    fractionation_column_ism = N_h13cn_upper_column / N_hc15n_upper_column * 69
+    e_fractionation_column_ism = relative_e_fractionation_column * fractionation_column_ism    
+
     # return N_h13cn_upper_column
-    new_table = astropy.table.Table([Ju_column, h13cn_tau, N_h13cn_upper_column, hc15n_tau, N_hc15n_upper_column, fractionation_column_ism, fractionation_column_solar], 
-                                    names=['J_upper', 'tau_h13cn', "N(h13cn)_upper", "tau_hc15n", "N(hc15n)_upper", "14N/15N ratio (ISM)", "14N/15N ratio (solar)"])
+    new_table = astropy.table.Table([Ju_column, h13cn_tau, N_h13cn_upper_column, hc15n_tau, 
+                                    N_hc15n_upper_column, fractionation_column_ism, 
+                                    e_fractionation_column_ism, fractionation_column_solar, 
+                                    e_fractionation_column_solar], 
+                                    names=['J_upper', 'tau_h13cn', "N(h13cn)_upper", "tau_hc15n", 
+                                           "N(hc15n)_upper", "14N/15N ratio (ISM)", 
+                                           "e_14N/15N ratio (ISM)", "14N/15N ratio (solar)", 
+                                           "e_14N/15N ratio (solar)"])
 
     return new_table
 
