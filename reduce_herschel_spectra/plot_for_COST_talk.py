@@ -60,8 +60,25 @@ color_list = [color_dict[x.telescope] for x in fourteen_fifteen_nitrogen_ratios]
 fig = plt.figure(figsize=(5,4))
 ax = fig.add_subplot(111)
 
+weighting_values = []
+weighting_errors = []
+
 for i in range(len(E_uppers)):
     ax.errorbar(E_uppers[i], ratios[i], yerr=errors[i], fmt='o', ms=4, color=color_list[i])
+    if fourteen_fifteen_nitrogen_ratios[i][3] != 'IRAM' and fourteen_fifteen_nitrogen_ratios[i][3] != 'JCMT':
+        print("14N/15N ratio for Eu={3:.1f} from {2}: {0} +/- {1}".format(ratios[i], errors[i], fourteen_fifteen_nitrogen_ratios[i][3], E_uppers[i]))
+        weighting_values.append(ratios[i])
+        weighting_errors.append(errors[i])
+
+weighting_values = np.array(weighting_values)
+weighting_errors = np.array(weighting_errors)
+
+weighted_mean = np.sum(weighting_values/weighting_errors**2)/np.sum(1/weighting_errors**2)
+weighted_error = np.sqrt(1/np.sum(1/weighting_errors**2))
+print("Weighted mean and error: {0:.1f} +/- {1:.1f}".format(weighted_mean, weighted_error))
+unweighted_mean = np.mean(weighting_values)
+print("Unweighted mean for reference: ", unweighted_mean)
+
 ax.set_xlabel("Upper state energy (K)", fontsize=16)
 ax.set_ylabel(r"$\frac{^{14}\rm{N}}{^{15}\rm{N}}$", fontsize=24, rotation='horizontal', labelpad=20)
 ax.set_title(r"$^{14}$N/$^{15}$N in IRAS 16293 from single-dish observations")
@@ -73,5 +90,6 @@ ax.set_title(r"$^{14}$N/$^{15}$N in IRAS 16293 from single-dish observations")
 
 plt.show()
 
-fig.savefig("COST_plot_1415ratio_vs_Eu.pdf", bbox_inches='tight')
+if False:
+    fig.savefig("COST_plot_1415ratio_vs_Eu.pdf", bbox_inches='tight')
 fig.savefig("COST_plot_1415ratio_vs_Eu.png", bbox_inches='tight')
